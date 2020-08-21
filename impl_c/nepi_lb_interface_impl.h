@@ -91,7 +91,7 @@ typedef enum NEPI_EDGE_LB_Param_Id_Type
 
 typedef union NEPI_EDGE_LB_Param_Id
 {
-  const char *id_string;
+  char *id_string;
   uint32_t id_number;
 } NEPI_EDGE_LB_Param_Id_t;
 
@@ -108,7 +108,7 @@ typedef enum NEPI_EDGE_LB_Param_Value_Type
 
 typedef struct NEPI_EDGE_LB_Param_Bytes
 {
-  const uint8_t *val;
+  uint8_t *val;
   size_t length;
 } NEPI_EDGE_LB_Param_Bytes_t;
 
@@ -119,7 +119,7 @@ typedef union NEPI_EDGE_LB_Param_Value
   uint64_t uint64_val;
   float float_val;
   double double_val;
-  const char *string_val;
+  char *string_val;
   NEPI_EDGE_LB_Param_Bytes_t bytes_val;
 } NEPI_EDGE_LB_Param_Value_t;
 

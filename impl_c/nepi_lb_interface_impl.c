@@ -8,6 +8,8 @@
 #include "nepi_edge_sdk_impl.h"
 #include "nepi_edge_errors.h"
 
+#include "frozen/frozen.h"
+
 // In case we want to provide arena allocator, etc. someday, don't call
 // malloc() and free() directly
 #define NEPI_EDGE_MALLOC(x) malloc((x))
@@ -552,6 +554,18 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralDestroy(NEPI_EDGE_LB_General_t general)
 {
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
+  // Depending on identifier and value type, might need to free some internal pointers that
+  // are malloc'd when the fields are populated
+  if (p->param.id_type == NEPI_EDGE_LB_PARAM_ID_TYPE_STRING)
+  {
+    NEPI_EDGE_FREE(p->param.id.id_string);
+  }
+  if (p->param.value_type == NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING ||
+      p->param.value_type == NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES)
+  {
+    NEPI_EDGE_FREE(p->param.value.string_val);
+  }
+
   NEPI_EDGE_FREE(general);
   general = NULL;
 
@@ -563,7 +577,8 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrBool(NEPI_EDGE_LB_General_t gene
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = id;
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_BOOL;
   p->param.value.bool_val = (val == 0)? 0 : 1;
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
@@ -576,7 +591,8 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrInt64(NEPI_EDGE_LB_General_t gen
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = id;
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_INT64;
   p->param.value.int64_val = val;
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
@@ -589,7 +605,8 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrUInt64(NEPI_EDGE_LB_General_t ge
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = id;
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_UINT64;
   p->param.value.uint64_val = val;
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
@@ -602,7 +619,8 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrFloat(NEPI_EDGE_LB_General_t gen
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = id;
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_FLOAT;
   p->param.value.float_val = val;
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
@@ -615,7 +633,8 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrDouble(NEPI_EDGE_LB_General_t ge
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = id;
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_DOUBLE;
   p->param.value.double_val = val;
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
@@ -628,9 +647,11 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrStr(NEPI_EDGE_LB_General_t gener
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = id;
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING;
-  p->param.value.string_val = val;
+  p->param.value.string_val = NEPI_EDGE_MALLOC(strlen(val));
+  strcpy(p->param.value.string_val, val);
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
 
   return NEPI_EDGE_RET_OK;
@@ -641,9 +662,11 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrBytes(NEPI_EDGE_LB_General_t gen
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = id;
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES;
-  p->param.value.bytes_val.val = val;
+  p->param.value.bytes_val.val = NEPI_EDGE_MALLOC(length);
+  memcpy(p->param.value.bytes_val.val, val, length);
   p->param.value.bytes_val.length = length;
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
 
@@ -722,7 +745,8 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadIntStr(NEPI_EDGE_LB_General_t gener
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER;
   p->param.id.id_number = id;
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING;
-  p->param.value.string_val = val;
+  p->param.value.string_val = NEPI_EDGE_MALLOC(strlen(val));
+  strcpy(p->param.value.string_val, val);
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
 
   return NEPI_EDGE_RET_OK;
@@ -735,7 +759,8 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadIntBytes(NEPI_EDGE_LB_General_t gen
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER;
   p->param.id.id_number = id;
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES;
-  p->param.value.bytes_val.val = val;
+  p->param.value.bytes_val.val = NEPI_EDGE_MALLOC(length);
+  memcpy(p->param.value.bytes_val.val, val, length);
   p->param.value.bytes_val.length = length;
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
 
@@ -759,10 +784,68 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBExportGeneral(NEPI_EDGE_LB_General_t general)
 
   fprintf(general_do_file, "{\n");
   writeParamToJsonFile(general_do_file, &(p->param));
-  fprintf(general_do_file, "}");
+  fprintf(general_do_file, "\n}");
 
   fclose(general_do_file);
 
   ++general_do_file_count; // Always increment to ensure files have unique names
+  return NEPI_EDGE_RET_OK;
+}
+
+static void json_walk_general_callback(void *callback_data, const char *name, size_t name_len, const char *path, const struct json_token *token)
+{
+  if (token->type == JSON_TYPE_OBJECT_START || token->type == JSON_TYPE_OBJECT_END) return;
+
+  struct NEPI_EDGE_LB_General *p = (struct NEPI_EDGE_LB_General*)callback_data;
+  char tmp_name[1024];
+  size_t tmp_len = (name_len < 1024)? name_len : 1024;
+  strncpy(tmp_name, name, tmp_len);
+  tmp_name[tmp_len] = '\0';
+  char tmp_token[1024];
+  tmp_len = (token->len < 1024)? token->len : 1024;
+  strncpy(tmp_token, token->ptr, tmp_len);
+  tmp_token[tmp_len] = '\0';
+
+  if (0 == strcmp(tmp_name, "identifier"))
+  {
+    if (token->type == JSON_TYPE_STRING)
+    {
+      p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
+      p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(tmp_token)); // Freed in the Destroy method
+      strcpy(p->param.id.id_string,tmp_token);
+    }
+    else if (token->type == JSON_TYPE_NUMBER)
+    {
+      p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER;
+      p->param.id.id_number = strtol(tmp_token, NULL, 10);
+    }
+  }
+  else if (0 == strcmp(tmp_name, "value"))
+  {
+    if (token->type == JSON_TYPE_STRING)
+    {
+      p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING;
+      p->param.value.string_val = NEPI_EDGE_MALLOC(strlen(tmp_token)); // Freed in the Destroy method
+      strcpy(p->param.value.string_val, tmp_token);
+      p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
+    }
+  }
+  //printf("%s: %s [%d]\n", tmp_name, tmp_token, token->type); // Debugging
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_LBImportGeneral(const char* filename, NEPI_EDGE_LB_General_t general)
+{
+  VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
+
+  // First read the file into a string
+  char filename_with_path[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
+  snprintf(filename_with_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s/%s",
+           NEPI_EDGE_GetBotBaseFilePath(), NEPI_EDGE_LB_GENERAL_DT_FOLDER_PATH, filename);
+  char *json_string = json_fread(filename_with_path);
+  if (NULL == json_string) return NEPI_EDGE_RET_INVALID_FILE_FORMAT;
+  //printf("%s\n", json_string); // Debugging
+  json_walk(json_string, strlen(json_string), json_walk_general_callback, p);
+  free(json_string); // Must free the frozen-malloc'd string
+
   return NEPI_EDGE_RET_OK;
 }

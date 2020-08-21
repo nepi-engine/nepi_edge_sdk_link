@@ -56,12 +56,15 @@ int main(int argc, char **argv)
   NEPI_EDGE_LB_General_t general_2;
   NEPI_EDGE_LBGeneralCreate(&general_2);
   /* Populate this one with a numerical key and an arbitrary byte array for its value */
-  const uint32_t numerical_key = 12345;
-  const uint8_t byte_array_payload[] = {0xDE,0xAD,0xBE,0xEF}; // Must exist at least as long as general_2
-  const size_t byte_array_length = 4; // Matches length of array above
-  NEPI_EDGE_LBGeneralSetPayloadIntBytes(general_2, numerical_key, byte_array_payload, byte_array_length);
+  uint8_t byte_array[4] = {0xDE,0xAD,0xBE,0xEF};
+  NEPI_EDGE_LBGeneralSetPayloadIntBytes(general_2, 12345, byte_array, 4);
   /* And export it to a file (in the proper location) */
   NEPI_EDGE_LBExportGeneral(general_2);
+
+  /* Now we demonstrate import */
+  NEPI_EDGE_LB_General_t general_dt_1;
+  NEPI_EDGE_LBGeneralCreate(&general_dt_1);
+  NEPI_EDGE_LBImportGeneral("general_dt_1.json", general_dt_1); // Will find this in the lb/dt-msg folder
 
   /* Always destroy what you create */
   NEPI_EDGE_LBStatusDestroy(status);
@@ -69,6 +72,7 @@ int main(int argc, char **argv)
   NEPI_EDGE_LBDataSnippetDestroy(data_snippets[1]);
   NEPI_EDGE_LBGeneralDestroy(general_1);
   NEPI_EDGE_LBGeneralDestroy(general_2);
+  NEPI_EDGE_LBGeneralDestroy(general_dt_1);
 
   return 0;
 }

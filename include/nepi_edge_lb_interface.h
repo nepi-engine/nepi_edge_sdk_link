@@ -58,5 +58,6 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadIntStr(NEPI_EDGE_LB_General_t gener
 NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadIntBytes(NEPI_EDGE_LB_General_t general, uint32_t id, const uint8_t *val, const size_t length);
 
 NEPI_EDGE_RET_t NEPI_EDGE_LBExportGeneral(NEPI_EDGE_LB_General_t general);
+NEPI_EDGE_RET_t NEPI_EDGE_LBImportGeneral(const char* filename, NEPI_EDGE_LB_General_t general);
 
 #endif //__NEPI_EDGE_LB_INTERFACE_H

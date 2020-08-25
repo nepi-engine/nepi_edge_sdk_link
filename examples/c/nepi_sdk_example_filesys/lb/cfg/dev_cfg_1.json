@@ -1,0 +1,24 @@
+{
+   "params":[
+      {
+        "identifier":"the_bool_param",
+        "value":false
+      },
+      {
+        "identifier":"the_double_param",
+        "value":1.57
+      },
+      {
+        "identifier":"the_int_param",
+        "value":-1288
+      },
+      {
+         "identifier":328,
+         "value":[
+            121,
+            13,
+            17
+         ]
+      }
+   ]
+}

@@ -64,7 +64,7 @@ int main(int argc, char **argv)
   /* Now we demonstrate import */
   NEPI_EDGE_LB_General_t general_dt_1;
   NEPI_EDGE_LBGeneralCreate(&general_dt_1);
-  NEPI_EDGE_LBImportGeneral("general_dt_1.json", general_dt_1); // Will find this in the lb/dt-msg folder
+  NEPI_EDGE_LBImportGeneral(general_dt_1, "dev_dt_msg_1.json"); // Will find this in the lb/dt-msg folder
 
   /* Always destroy what you create */
   NEPI_EDGE_LBStatusDestroy(status);

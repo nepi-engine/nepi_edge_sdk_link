@@ -33,11 +33,12 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetSetScores(NEPI_EDGE_LB_Data_Snippet_t sni
 NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetSetDataFile(NEPI_EDGE_LB_Data_Snippet_t snippet, const char *data_file_full_path);
 
 NEPI_EDGE_RET_t NEPI_EDGE_LBExportData(const NEPI_EDGE_LB_Status_t status, const NEPI_EDGE_LB_Data_Snippet_t *snippets, size_t snippet_count);
-/*
+
 typedef void* NEPI_EDGE_LB_Config_t;
-NEPI_EDGE_RET_t NEPI_EDGE_LBConfigCreate(NEPI_EDGE_LB_Config_t config);
+NEPI_EDGE_RET_t NEPI_EDGE_LBConfigCreate(NEPI_EDGE_LB_Config_t *config);
 NEPI_EDGE_RET_t NEPI_EDGE_LBConfigDestroy(NEPI_EDGE_LB_Config_t config);
-*/
+
+NEPI_EDGE_RET_t NEPI_EDGE_LBImportConfig(NEPI_EDGE_LB_Config_t config, const char* filename);
 
 typedef void* NEPI_EDGE_LB_General_t;
 NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralCreate(NEPI_EDGE_LB_General_t *general);
@@ -58,6 +59,6 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadIntStr(NEPI_EDGE_LB_General_t gener
 NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadIntBytes(NEPI_EDGE_LB_General_t general, uint32_t id, const uint8_t *val, const size_t length);
 
 NEPI_EDGE_RET_t NEPI_EDGE_LBExportGeneral(NEPI_EDGE_LB_General_t general);
-NEPI_EDGE_RET_t NEPI_EDGE_LBImportGeneral(const char* filename, NEPI_EDGE_LB_General_t general);
+NEPI_EDGE_RET_t NEPI_EDGE_LBImportGeneral(NEPI_EDGE_LB_General_t general, const char* filename);
 
 #endif //__NEPI_EDGE_LB_INTERFACE_H

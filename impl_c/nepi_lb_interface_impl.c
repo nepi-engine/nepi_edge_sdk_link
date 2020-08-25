@@ -538,6 +538,231 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBExportData(const NEPI_EDGE_LB_Status_t status, const
   return NEPI_EDGE_RET_OK;
 }
 
+NEPI_EDGE_RET_t NEPI_EDGE_LBConfigCreate(NEPI_EDGE_LB_Config_t *config)
+{
+  *config = NEPI_EDGE_MALLOC(sizeof(struct NEPI_EDGE_LB_Config));
+  if (NULL == *config) return NEPI_EDGE_RET_MALLOC_ERR;
+
+  struct NEPI_EDGE_LB_Config *p = (struct NEPI_EDGE_LB_Config*)(*config);
+
+  p->opaque_helper.msg_id = NEPI_EDGE_LB_MSG_ID_CONFIG;
+  p->opaque_helper.fields_set = 0;
+  p->params = NULL;
+
+  return NEPI_EDGE_RET_OK;
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_LBConfigDestroy(NEPI_EDGE_LB_Config_t config)
+{
+  VALIDATE_OPAQUE_TYPE(config, NEPI_EDGE_LB_MSG_ID_CONFIG, NEPI_EDGE_LB_Config)
+
+  NEPI_EDGE_LB_Param_t *param = p->params;
+  while (param != NULL)
+  {
+    if (param->id_type == NEPI_EDGE_LB_PARAM_ID_TYPE_STRING)
+    {
+      NEPI_EDGE_FREE(param->id.id_string);
+    }
+    if (param->value_type == NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING)
+    {
+      NEPI_EDGE_FREE(param->value.string_val);
+    }
+    else if (param->value_type == NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES)
+    {
+      NEPI_EDGE_FREE(param->value.bytes_val.val);
+    }
+    param = param->next;
+  }
+
+  NEPI_EDGE_FREE(config);
+  config = NULL;
+
+  return NEPI_EDGE_RET_OK;
+}
+
+static void parse_param_identifier(const struct json_token* token, NEPI_EDGE_LB_Param_t *param)
+{
+  if (token->type == JSON_TYPE_STRING)
+  {
+    param->id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
+    param->id.id_string = NEPI_EDGE_MALLOC(token->len + 1); // Freed in the Destroy method
+    memcpy(param->id.id_string, token->ptr, token->len);
+    param->id.id_string[token->len] = '\0';
+  }
+  else if (token->type == JSON_TYPE_NUMBER)
+  {
+    param->id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER;
+    param->id.id_number = strtol(token->ptr, NULL, 10);
+  }
+}
+
+static void parse_param_value(const struct json_token* token, NEPI_EDGE_LB_Param_t *param)
+{
+  static uint8_t in_byte_array = 0; // This method is stateful
+
+  if (0 != in_byte_array)
+  {
+    if (token->type == JSON_TYPE_NUMBER)
+    {
+      // Check if we need to allocate more memory
+      if (0 == (param->value.bytes_val.length % NEPI_EDGE_BYTE_ARRAY_BLOCK_SIZE))
+      {
+        // Free the existing memory
+        NEPI_EDGE_FREE(param->value.bytes_val.val);
+        // Allocate a larger block of memory
+        param->value.bytes_val.val = NEPI_EDGE_MALLOC(param->value.bytes_val.length + NEPI_EDGE_BYTE_ARRAY_BLOCK_SIZE);
+      }
+
+      param->value.bytes_val.val[param->value.bytes_val.length] = strtol(token->ptr, NULL, 10);
+      ++param->value.bytes_val.length;
+    }
+    else if (token->type == JSON_TYPE_ARRAY_END)
+    {
+      in_byte_array = 0;
+    }
+    return;
+  }
+
+  // Now check the type and proceed accordingly
+  if (token->type == JSON_TYPE_STRING)
+  {
+    param->value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING;
+    param->value.string_val = NEPI_EDGE_MALLOC(token->len + 1); // Freed in the Destroy method
+    memcpy(param->value.string_val, token->ptr, token->len);
+    param->value.string_val[token->len] = '\0';
+  }
+  else if (token->type == JSON_TYPE_ARRAY_START)
+  {
+    param->value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES;
+    //param->value.bytes_val.val = NEPI_EDGE_MALLOC(NEPI_EDGE_BYTE_ARRAY_BLOCK_SIZE);
+    param->value.bytes_val.length = 0;
+    in_byte_array = 1; // Method state variable
+  }
+  else if (token->type == JSON_TYPE_NUMBER)
+  {
+    // If there is a decimal point, we'll make it a double, otherwise an int64_t
+    uint8_t has_decimal_point = 0;
+    for (int i = 0; i < token->len; ++i)
+    {
+      if (*(token->ptr + i) == '.')
+      {
+        has_decimal_point = 1;
+        break;
+      }
+    }
+    if (1 == has_decimal_point)
+    {
+      param->value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_DOUBLE;
+      param->value.double_val = strtod(token->ptr, NULL);
+    }
+    else
+    {
+      param->value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_INT64;
+      param->value.int64_val = strtol(token->ptr, NULL, 10);
+    }
+  }
+  else if (token->type == JSON_TYPE_TRUE)
+  {
+    param->value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_BOOL;
+    param->value.bool_val = 1;
+  }
+  else if (token->type == JSON_TYPE_FALSE)
+  {
+    param->value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_BOOL;
+    param->value.bool_val = 0;
+  }
+}
+
+static void json_walk_config_callback(void *callback_data, const char *name, size_t name_len, const char *path, const struct json_token *token)
+{
+  if (token->type == JSON_TYPE_OBJECT_START || token->type == JSON_TYPE_OBJECT_END) return;
+
+  struct NEPI_EDGE_LB_Config *p = (struct NEPI_EDGE_LB_Config*)callback_data;
+
+  char tmp_name[1024];
+  size_t tmp_len = (name_len < 1024)? name_len : 1024;
+  strncpy(tmp_name, name, tmp_len);
+  tmp_name[tmp_len] = '\0';
+
+  if (0 == strcmp(tmp_name, "params")) return; // The start of the params array, nothing to do
+
+  // Find the last valid entry in the param linked list
+  NEPI_EDGE_LB_Param_t *param = p->params;
+  if (param != NULL)
+  {
+    while (param->next != NULL)
+    {
+      param = param->next;
+    }
+  }
+  else // First entry, so allocate and initialize
+  {
+    p->params = NEPI_EDGE_MALLOC(sizeof(NEPI_EDGE_LB_Param_t));
+    p->params->next = NULL;
+    p->params->id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_UNKNOWN;
+    p->params->value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_UNKNOWN;
+    param = p->params;
+    p->opaque_helper.fields_set |= NEPI_EDGE_LB_Config_Fields_Params;
+  }
+
+  if (0 == strcmp(tmp_name, "identifier"))
+  {
+    // Check if this is a new param entry and if so, close out the last one and create the new one
+    if (param->id_type != NEPI_EDGE_LB_PARAM_ID_TYPE_UNKNOWN)
+    {
+      param->next = NEPI_EDGE_MALLOC(sizeof(NEPI_EDGE_LB_Param_t));
+      param = param->next;
+      param->next = NULL;
+      param->id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_UNKNOWN;
+      param->value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_UNKNOWN;
+    }
+
+    parse_param_identifier(token, param);
+    p->opaque_helper.fields_set |= NEPI_EDGE_LB_Config_Fields_Params; // No harm in setting this every time
+  }
+  else if (0 == strcmp(tmp_name, "value"))
+  {
+    // Check if this is a new param entry and if so, close out the last one and create the new one
+    if (param->value_type != NEPI_EDGE_LB_PARAM_VALUE_TYPE_UNKNOWN)
+    {
+      param->next = NEPI_EDGE_MALLOC(sizeof(NEPI_EDGE_LB_Param_t));
+      param = param->next;
+      param->next = NULL;
+      param->id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_UNKNOWN;
+      param->value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_UNKNOWN;
+    }
+
+    parse_param_value(token, param);
+    p->opaque_helper.fields_set |= NEPI_EDGE_LB_Config_Fields_Params; // No harm in setting this every time
+  }
+  else if ((token->type == JSON_TYPE_NUMBER) && (path[strlen(path) - 1] == ']'))
+  {
+    // Might be inside a byte-array, in that case this will be a JSON_NUMBER and the last path character will be a closing bracket
+    parse_param_value(token, param);
+  }
+  else if (token->type == JSON_TYPE_ARRAY_END) // Must catch this one to update the state in parse_param_value
+  {
+    parse_param_value(token, param);
+  }
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_LBImportConfig(NEPI_EDGE_LB_Config_t config, const char* filename)
+{
+  VALIDATE_OPAQUE_TYPE(config, NEPI_EDGE_LB_MSG_ID_CONFIG, NEPI_EDGE_LB_Config)
+
+  // First read the file into a string
+  char filename_with_path[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
+  snprintf(filename_with_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s/%s",
+           NEPI_EDGE_GetBotBaseFilePath(), NEPI_EDGE_LB_CONFIG_FOLDER_PATH, filename);
+  char *json_string = json_fread(filename_with_path);
+  if (NULL == json_string) return NEPI_EDGE_RET_INVALID_FILE_FORMAT;
+  //printf("%s\n", json_string); // Debugging
+  json_walk(json_string, strlen(json_string), json_walk_config_callback, p);
+  free(json_string); // Must free the frozen-malloc'd string
+
+  return NEPI_EDGE_RET_OK;
+}
+
 NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralCreate(NEPI_EDGE_LB_General_t *general)
 {
   *general = NEPI_EDGE_MALLOC(sizeof(struct NEPI_EDGE_LB_General));
@@ -797,43 +1022,33 @@ static void json_walk_general_callback(void *callback_data, const char *name, si
   if (token->type == JSON_TYPE_OBJECT_START || token->type == JSON_TYPE_OBJECT_END) return;
 
   struct NEPI_EDGE_LB_General *p = (struct NEPI_EDGE_LB_General*)callback_data;
+
   char tmp_name[1024];
   size_t tmp_len = (name_len < 1024)? name_len : 1024;
   strncpy(tmp_name, name, tmp_len);
   tmp_name[tmp_len] = '\0';
-  char tmp_token[1024];
-  tmp_len = (token->len < 1024)? token->len : 1024;
-  strncpy(tmp_token, token->ptr, tmp_len);
-  tmp_token[tmp_len] = '\0';
 
   if (0 == strcmp(tmp_name, "identifier"))
   {
-    if (token->type == JSON_TYPE_STRING)
-    {
-      p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-      p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(tmp_token)); // Freed in the Destroy method
-      strcpy(p->param.id.id_string,tmp_token);
-    }
-    else if (token->type == JSON_TYPE_NUMBER)
-    {
-      p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER;
-      p->param.id.id_number = strtol(tmp_token, NULL, 10);
-    }
+    parse_param_identifier(token, &(p->param));
+    p->opaque_helper.fields_set |= NEPI_EDGE_LB_Config_Fields_Params; // No harm in setting this every time
   }
   else if (0 == strcmp(tmp_name, "value"))
   {
-    if (token->type == JSON_TYPE_STRING)
-    {
-      p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING;
-      p->param.value.string_val = NEPI_EDGE_MALLOC(strlen(tmp_token)); // Freed in the Destroy method
-      strcpy(p->param.value.string_val, tmp_token);
-      p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
-    }
+    parse_param_value(token, &(p->param));
+    p->opaque_helper.fields_set |= NEPI_EDGE_LB_Config_Fields_Params; // No harm in setting this every time
   }
-  //printf("%s: %s [%d]\n", tmp_name, tmp_token, token->type); // Debugging
+  else if ((token->type == JSON_TYPE_NUMBER) && (path[strlen(path) - 1] == ']')) // Inside a byte array
+  {
+    parse_param_value(token, &(p->param));
+  }
+  else if (token->type == JSON_TYPE_ARRAY_END) // Must catch this one to update the state in parse_param_value
+  {
+    parse_param_value(token, &(p->param));
+  }
 }
 
-NEPI_EDGE_RET_t NEPI_EDGE_LBImportGeneral(const char* filename, NEPI_EDGE_LB_General_t general)
+NEPI_EDGE_RET_t NEPI_EDGE_LBImportGeneral(NEPI_EDGE_LB_General_t general, const char* filename)
 {
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 

@@ -86,7 +86,8 @@ typedef enum NEPI_EDGE_LB_Data_Snippet_Fields_Bitmask
 typedef enum NEPI_EDGE_LB_Param_Id_Type
 {
   NEPI_EDGE_LB_PARAM_ID_TYPE_STRING,
-  NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER
+  NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER,
+  NEPI_EDGE_LB_PARAM_ID_TYPE_UNKNOWN
 } NEPI_EDGE_LB_Param_Id_Type_t;
 
 typedef union NEPI_EDGE_LB_Param_Id
@@ -103,7 +104,8 @@ typedef enum NEPI_EDGE_LB_Param_Value_Type
   NEPI_EDGE_LB_PARAM_VALUE_TYPE_FLOAT,
   NEPI_EDGE_LB_PARAM_VALUE_TYPE_DOUBLE,
   NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING,
-  NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES
+  NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES,
+  NEPI_EDGE_LB_PARAM_VALUE_TYPE_UNKNOWN
 } NEPI_EDGE_LB_Param_Value_Type_t;
 
 typedef struct NEPI_EDGE_LB_Param_Bytes
@@ -130,6 +132,8 @@ typedef struct NEPI_EDGE_LB_Param
 
   NEPI_EDGE_LB_Param_Value_Type_t value_type;
   NEPI_EDGE_LB_Param_Value_t value;
+
+  struct NEPI_EDGE_LB_Param *next; // Linked list pointer for use in the CONFIG struct
 } NEPI_EDGE_LB_Param_t;
 
 typedef enum NEPI_EDGE_LB_Config_Fields_Bitmask
@@ -139,8 +143,7 @@ typedef enum NEPI_EDGE_LB_Config_Fields_Bitmask
 
 struct NEPI_EDGE_LB_Config
 {
-  NEPI_EDGE_LB_Param_t *params;
-  uint32_t param_count;
+  NEPI_EDGE_LB_Param_t *params; // Linked list
 
   NEPI_EDGE_LB_Opaque_Helper_t opaque_helper;
 };

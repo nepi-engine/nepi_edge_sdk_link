@@ -62,6 +62,10 @@ int main(int argc, char **argv)
   NEPI_EDGE_LBExportGeneral(general_2);
 
   /* Now we demonstrate import */
+  NEPI_EDGE_LB_Config_t config_1;
+  NEPI_EDGE_LBConfigCreate(&config_1);
+  NEPI_EDGE_LBImportConfig(config_1, "dev_cfg_1.json"); // Will find this in the lb/config folder
+
   NEPI_EDGE_LB_General_t general_dt_1;
   NEPI_EDGE_LBGeneralCreate(&general_dt_1);
   NEPI_EDGE_LBImportGeneral(general_dt_1, "dev_dt_msg_1.json"); // Will find this in the lb/dt-msg folder
@@ -72,6 +76,7 @@ int main(int argc, char **argv)
   NEPI_EDGE_LBDataSnippetDestroy(data_snippets[1]);
   NEPI_EDGE_LBGeneralDestroy(general_1);
   NEPI_EDGE_LBGeneralDestroy(general_2);
+  NEPI_EDGE_LBConfigDestroy(config_1);
   NEPI_EDGE_LBGeneralDestroy(general_dt_1);
 
   return 0;

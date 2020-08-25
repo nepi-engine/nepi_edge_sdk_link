@@ -406,7 +406,7 @@ static NEPI_EDGE_RET_t export_status(const NEPI_EDGE_LB_Status_t status, const c
   // All other fields are optional
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_NavSatFixTime))
   {
-    int64_t navsat_delta_ms = subtract_rfc3339_timestamps(p->navsat_fix_time_rfc3339, p->timestamp_rfc3339);
+    const int64_t navsat_delta_ms = subtract_rfc3339_timestamps(p->navsat_fix_time_rfc3339, p->timestamp_rfc3339);
     fprintf(status_file, ",\n\t\"navsat_fix_time_offset\":%ld", navsat_delta_ms);
   }
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_Latitude))
@@ -420,7 +420,7 @@ static NEPI_EDGE_RET_t export_status(const NEPI_EDGE_LB_Status_t status, const c
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_HeadingAndRef))
   {
     fprintf(status_file, ",\n\t\"heading\":%f", p->heading_deg);
-    fprintf(status_file, ",\n\t\"heading_ref\":%u", p->heading_ref);
+    fprintf(status_file, ",\n\t\"heading_true_north\":%s", (p->heading_ref == NEPI_EDGE_HEADING_REF_TRUE_NORTH)? "true" : "false");
   }
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_RollAngle))
   {
@@ -557,8 +557,10 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBConfigDestroy(NEPI_EDGE_LB_Config_t config)
   VALIDATE_OPAQUE_TYPE(config, NEPI_EDGE_LB_MSG_ID_CONFIG, NEPI_EDGE_LB_Config)
 
   NEPI_EDGE_LB_Param_t *param = p->params;
+  NEPI_EDGE_LB_Param_t *tmp;
   while (param != NULL)
   {
+    tmp = param;
     if (param->id_type == NEPI_EDGE_LB_PARAM_ID_TYPE_STRING)
     {
       NEPI_EDGE_FREE(param->id.id_string);
@@ -572,6 +574,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBConfigDestroy(NEPI_EDGE_LB_Config_t config)
       NEPI_EDGE_FREE(param->value.bytes_val.val);
     }
     param = param->next;
+    NEPI_EDGE_FREE(tmp); // Make sure to free the param, itself
   }
 
   NEPI_EDGE_FREE(config);
@@ -802,7 +805,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrBool(NEPI_EDGE_LB_General_t gene
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id) + 1);
   strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_BOOL;
   p->param.value.bool_val = (val == 0)? 0 : 1;
@@ -816,7 +819,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrInt64(NEPI_EDGE_LB_General_t gen
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id) + 1);
   strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_INT64;
   p->param.value.int64_val = val;
@@ -830,7 +833,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrUInt64(NEPI_EDGE_LB_General_t ge
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id) + 1);
   strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_UINT64;
   p->param.value.uint64_val = val;
@@ -844,7 +847,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrFloat(NEPI_EDGE_LB_General_t gen
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id) + 1);
   strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_FLOAT;
   p->param.value.float_val = val;
@@ -858,7 +861,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrDouble(NEPI_EDGE_LB_General_t ge
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id) + 1);
   strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_DOUBLE;
   p->param.value.double_val = val;
@@ -872,10 +875,10 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrStr(NEPI_EDGE_LB_General_t gener
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id) + 1);
   strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING;
-  p->param.value.string_val = NEPI_EDGE_MALLOC(strlen(val));
+  p->param.value.string_val = NEPI_EDGE_MALLOC(strlen(val) + 1);
   strcpy(p->param.value.string_val, val);
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
 
@@ -887,7 +890,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadStrBytes(NEPI_EDGE_LB_General_t gen
   VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
 
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_STRING;
-  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id));
+  p->param.id.id_string = NEPI_EDGE_MALLOC(strlen(id) + 1);
   strcpy(p->param.id.id_string,id);
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES;
   p->param.value.bytes_val.val = NEPI_EDGE_MALLOC(length);
@@ -970,7 +973,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralSetPayloadIntStr(NEPI_EDGE_LB_General_t gener
   p->param.id_type = NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER;
   p->param.id.id_number = id;
   p->param.value_type = NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING;
-  p->param.value.string_val = NEPI_EDGE_MALLOC(strlen(val));
+  p->param.value.string_val = NEPI_EDGE_MALLOC(strlen(val) + 1);
   strcpy(p->param.value.string_val, val);
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_General_Fields_Payload;
 

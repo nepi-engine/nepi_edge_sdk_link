@@ -8,10 +8,10 @@ int main(int argc, char **argv)
   /* First, set the the NEPI-EDGE filesys interface path */
   NEPI_EDGE_SetBotBaseFilePath("./nepi_sdk_example_filesys");
 
-  /* First, create the status */
+  /* Now create the status */
   NEPI_EDGE_LB_Status_t status;
   NEPI_EDGE_LBStatusCreate(&status, "2020-08-21 09:50:25.431396857-04:00"); // Timestamp is required; hence included in Create method
-  /* Now populate some of the optional fields */
+  /* Populate some of the optional fields */
   NEPI_EDGE_LBStatusSetNavSatFixTime(status, "2020-08-21T09:49:00.0-04:00"); // Either RFC3339 time/date separator is allowed.
   NEPI_EDGE_LBStatusSetLatitude(status, 47.6062f); // Seattle
   NEPI_EDGE_LBStatusSetLongitude(status, -122.3321f); // Seattle
@@ -20,7 +20,7 @@ int main(int argc, char **argv)
   NEPI_EDGE_LBStatusSetPitchAngle(status, -17.6f); // Diving
   NEPI_EDGE_LBStatusSetTemperature(status, 40.0f); // Balmy!
   NEPI_EDGE_LBStatusSetPowerState(status, 94.2f); // Mostly charged
-  const uint8_t device_status[5] = {1,2,3,4,5}; // This memory must persist this value until the status is exported
+  const uint8_t device_status[5] = {1,2,3,4,5}; // Will be copied into allocated memory, so this can be a temporary variable
   NEPI_EDGE_LBStatusSetDeviceStatus(status, device_status, 5);
 
   /* Next create a couple of data snippets */
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
   NEPI_EDGE_LBDataSnippetSetRollAngle(data_snippets[0], 6.5f); // Another degree of roll from attitude at status timestamp
   NEPI_EDGE_LBDataSnippetSetPitchAngle(data_snippets[0], -18.2f); // 0.6 degrees more downward pitch
   NEPI_EDGE_LBDataSnippetSetScores(data_snippets[0], 0.33f, 1.0f, 0.5f);
-  const char *simulated_file_path = "./sdk_example_data_1.bin"; // This memory must persist this value until the snippet is exported
+  const char *simulated_file_path = "./sdk_example_data_1.bin"; // Will be copied into allocated memory, so this can be a temporary variable
   NEPI_EDGE_LBDataSnippetSetDataFile(data_snippets[0], simulated_file_path);
 
   /* Now the second data snippet -- empty except for the required type and instance fields */

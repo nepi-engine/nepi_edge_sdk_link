@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "nepi_edge_lb_interface.h"
 #include "nepi_lb_interface_impl.h"
@@ -419,20 +420,24 @@ static NEPI_EDGE_RET_t export_status(const NEPI_EDGE_LB_Status_t status, const c
   }
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_HeadingAndRef))
   {
-    fprintf(status_file, ",\n\t\"heading\":%f", p->heading_deg);
+    //fprintf(status_file, ",\n\t\"heading\":%f", p->heading_deg);
+    fprintf(status_file, ",\n\t\"heading\":%d", (int)(round(1000.0 * p->heading_deg)));
     fprintf(status_file, ",\n\t\"heading_true_north\":%s", (p->heading_ref == NEPI_EDGE_HEADING_REF_TRUE_NORTH)? "true" : "false");
   }
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_RollAngle))
   {
-    fprintf(status_file, ",\n\t\"roll_angle\":%f", p->roll_angle_deg);
+    //fprintf(status_file, ",\n\t\"roll_angle\":%f", p->roll_angle_deg);
+    fprintf(status_file, ",\n\t\"roll_angle\":%d", (int)(round(1000.0 * p->roll_angle_deg)));
   }
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_PitchAngle))
   {
-    fprintf(status_file, ",\n\t\"pitch_angle\":%f", p->pitch_angle_deg);
+    //fprintf(status_file, ",\n\t\"pitch_angle\":%f", p->pitch_angle_deg);
+    fprintf(status_file, ",\n\t\"pitch_angle\":%d", (int)(round(1000.0 * p->pitch_angle_deg)));
   }
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_Temperature))
   {
-    fprintf(status_file, ",\n\t\"temperature\":%f", p->temperature_c);
+    //fprintf(status_file, ",\n\t\"temperature\":%f", p->temperature_c);
+    fprintf(status_file, ",\n\t\"temperature\":%d", (int)(round(10 * p->temperature_c)));
   }
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_PowerState))
   {
@@ -483,15 +488,18 @@ static NEPI_EDGE_RET_t export_data_snippet(NEPI_EDGE_LB_Data_Snippet_t snippet, 
   }
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Data_Snippet_Fields_Heading))
   {
-    fprintf(snippet_file, ",\n\t\"heading_offset\":%f", p->heading_deg - status->heading_deg);
+    //fprintf(snippet_file, ",\n\t\"heading_offset\":%f", p->heading_deg - status->heading_deg);
+    fprintf(snippet_file, ",\n\t\"heading_offset\":%d", (int)(round(1000.0f * (p->heading_deg - status->heading_deg))));
   }
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Data_Snippet_Fields_RollAngle))
   {
-    fprintf(snippet_file, ",\n\t\"roll_offset\":%f", p->roll_angle_deg - status->roll_angle_deg);
+    //fprintf(snippet_file, ",\n\t\"roll_offset\":%f", p->roll_angle_deg - status->roll_angle_deg);
+    fprintf(snippet_file, ",\n\t\"roll_offset\":%d", (int)(round(1000.0f * (p->roll_angle_deg - status->roll_angle_deg))));
   }
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Data_Snippet_Fields_PitchAngle))
   {
-    fprintf(snippet_file, ",\n\t\"pitch_offset\":%f", p->pitch_angle_deg - status->pitch_angle_deg);
+    //fprintf(snippet_file, ",\n\t\"pitch_offset\":%f", p->pitch_angle_deg - status->pitch_angle_deg);
+    fprintf(snippet_file, ",\n\t\"pitch_offset\":%d", (int)(round(1000.0f * (p->pitch_angle_deg - status->pitch_angle_deg))));
   }
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Data_Snippet_Fields_Scores))
   {

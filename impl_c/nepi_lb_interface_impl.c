@@ -619,13 +619,16 @@ static void parse_param_value(const struct json_token* token, NEPI_EDGE_LB_Param
       if (0 == (param->value.bytes_val.length % NEPI_EDGE_BYTE_ARRAY_BLOCK_SIZE))
       {
         // Free the existing memory
-        NEPI_EDGE_FREE(param->value.bytes_val.val);
+        if (param->value.bytes_val.length > 0)
+        {
+          NEPI_EDGE_FREE(param->value.bytes_val.val);
+        }
         // Allocate a larger block of memory
         param->value.bytes_val.val = NEPI_EDGE_MALLOC(param->value.bytes_val.length + NEPI_EDGE_BYTE_ARRAY_BLOCK_SIZE);
       }
 
       param->value.bytes_val.val[param->value.bytes_val.length] = strtol(token->ptr, NULL, 10);
-      ++param->value.bytes_val.length;
+      ++(param->value.bytes_val.length);
     }
     else if (token->type == JSON_TYPE_ARRAY_END)
     {

@@ -162,12 +162,19 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBStatusCreate(NEPI_EDGE_LB_Status_t *status, const ch
   p->opaque_helper.msg_id = NEPI_EDGE_LB_MSG_ID_STATUS;
   p->opaque_helper.fields_set = NEPI_EDGE_LB_Status_Fields_Timestamp;
 
+  p->device_status_entries = NULL;
   return NEPI_EDGE_RET_OK;
 }
 
 NEPI_EDGE_RET_t NEPI_EDGE_LBStatusDestroy(NEPI_EDGE_LB_Status_t status)
 {
   VALIDATE_OPAQUE_TYPE(status, NEPI_EDGE_LB_MSG_ID_STATUS, NEPI_EDGE_LB_Status)
+
+  // Free allocated memory for device status if there was any
+  if (NULL != p->device_status_entries)
+  {
+    NEPI_EDGE_FREE(p->device_status_entries);
+  }
 
   NEPI_EDGE_FREE(status);
   status = NULL;
@@ -268,7 +275,10 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBStatusSetDeviceStatus(NEPI_EDGE_LB_Status_t status, 
   VALIDATE_OPAQUE_TYPE(status, NEPI_EDGE_LB_MSG_ID_STATUS, NEPI_EDGE_LB_Status)
 
   if (status_entries != NULL && status_entry_count > 0) NEPI_EDGE_RET_UNINIT_OBJ;
-  p->device_status_entries = status_entries;
+
+  p->device_status_entries = NEPI_EDGE_MALLOC(status_entry_count);
+  memcpy(p->device_status_entries, status_entries, status_entry_count);
+
   p->device_status_entry_count = status_entry_count;
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_Status_Fields_DeviceStatus;
 
@@ -281,7 +291,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetCreate(NEPI_EDGE_LB_Data_Snippet_t *snipp
   if (NULL == *snippet) return NEPI_EDGE_RET_MALLOC_ERR;
 
   struct NEPI_EDGE_LB_Data_Snippet *p = (struct NEPI_EDGE_LB_Data_Snippet*)(*snippet);
-  strncpy(p->type, type, NEPI_EDGE_DATA_SNIPPET_TYPE_LENGTH);
+  memcpy(p->type, type, NEPI_EDGE_DATA_SNIPPET_TYPE_LENGTH);
   p->instance = instance;
   p->opaque_helper.msg_id = NEPI_EDGE_LB_MSG_ID_DATA;
   p->opaque_helper.fields_set = NEPI_EDGE_LB_Data_Snippet_Fields_TypeAndInstance;
@@ -464,13 +474,13 @@ static NEPI_EDGE_RET_t export_data_snippet(NEPI_EDGE_LB_Data_Snippet_t snippet, 
   ENSURE_FIELD_PRESENT(p, NEPI_EDGE_LB_Data_Snippet_Fields_TypeAndInstance)
 
   char tmp_filename[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
-  snprintf(tmp_filename, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s%u.json", data_path, p->type, p->instance);
+  snprintf(tmp_filename, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%c%c%c%u.json", data_path, p->type[0], p->type[1], p->type[2], p->instance);
   FILE *snippet_file = fopen(tmp_filename, "w");
   if (NULL == snippet_file) return NEPI_EDGE_RET_FILE_OPEN_ERR;
 
   // Now write the JSON
   fprintf(snippet_file, "{\n");
-  fprintf(snippet_file, "\t\"type\":\"%s\"", p->type);
+  fprintf(snippet_file, "\t\"type\":\"%c%c%c\"", p->type[0], p->type[1], p->type[2]);
   fprintf(snippet_file, ",\n\t\"instance\":%u", p->instance);
 
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Data_Snippet_Fields_Data_Time))

@@ -32,7 +32,7 @@ struct NEPI_EDGE_LB_Status
   float pitch_angle_deg;
   float temperature_c;
   uint8_t power_state_percentage;
-  const uint8_t *device_status_entries;
+  uint8_t *device_status_entries;
   size_t device_status_entry_count;
 
   NEPI_EDGE_LB_Opaque_Helper_t opaque_helper;

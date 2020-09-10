@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "nepi_edge_sdk.h"
 #include "nepi_edge_lb_interface.h"
 

@@ -1,0 +1,19 @@
+bounding_boxes: 
+  - 
+    probability: 0.896564781666
+    xmin: 300
+    ymin: 1
+    xmax: 575
+    ymax: 355
+    id: 0
+    Class: "person"
+  - 
+    probability: 0.570438861847
+    xmin: 174
+    ymin: 227
+    xmax: 329
+    ymax: 342
+    id: 57
+    Class: "sofa"
+---
+

@@ -7,8 +7,6 @@
 
 #define NEPI_EDGE_MAX_TSTAMP_STRING_LENGTH  64 // Plenty big enough for RTC3339
 
-#define NEPI_EDGE_MAX_DATA_SNIPPET_FILE_NAME_LENGTH   256 // Doesn't include path, just the filename with extension
-
 #define NEPI_EDGE_BYTE_ARRAY_BLOCK_SIZE   1024 // Bytes allocated at a time when importing a JSON file with a byte array
 
 typedef enum NEPI_EDGE_Heading_Ref

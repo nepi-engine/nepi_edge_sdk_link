@@ -65,7 +65,8 @@ struct NEPI_EDGE_LB_Data_Snippet
   float quality_score;
   float type_score;
   float event_score;
-  char data_file[NEPI_EDGE_MAX_DATA_SNIPPET_FILE_NAME_LENGTH];
+  char data_file[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
+  uint8_t delete_on_export;
 
   NEPI_EDGE_LB_Opaque_Helper_t opaque_helper;
 };

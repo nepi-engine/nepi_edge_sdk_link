@@ -37,13 +37,13 @@ int main(int argc, char **argv)
   NEPI_EDGE_LBDataSnippetSetRollAngle(data_snippets[0], 6.5f); // Another degree of roll from attitude at status timestamp
   NEPI_EDGE_LBDataSnippetSetPitchAngle(data_snippets[0], -18.2f); // 0.6 degrees more downward pitch
   NEPI_EDGE_LBDataSnippetSetScores(data_snippets[0], 0.33f, 1.0f, 0.5f);
-  const char *simulated_file_path = "left_img_detections.txt"; // Will be copied into allocated memory, so this can be a temporary variable
-  NEPI_EDGE_LBDataSnippetSetDataFile(data_snippets[0], simulated_file_path);
+  const char *simulated_file_path = "./example_files/left_img_detections.txt"; // Will be copied into allocated memory, so this can be a temporary variable
+  NEPI_EDGE_LBDataSnippetSetDataFile(data_snippets[0], simulated_file_path, 0); // Last arg means don't delete file after export
 
   /* Now the second data snippet -- empty except for the required type and instance fields and optional data file field */
   NEPI_EDGE_LBDataSnippetCreate(&data_snippets[1], "cls", 1);
-  const char *simulated_file_path_2 = "left_img_small.jpeg"; // Will be copied into allocated memory, so this can be a temporary variable
-  NEPI_EDGE_LBDataSnippetSetDataFile(data_snippets[1], simulated_file_path_2);
+  const char *simulated_file_path_2 = "./example_files/left_img_small.jpeg"; // Will be copied into allocated memory, so this can be a temporary variable
+  NEPI_EDGE_LBDataSnippetSetDataFile(data_snippets[1], simulated_file_path_2, 0); // Last arg means don't delete file after export
 
   /* And export the status+data */
   NEPI_EDGE_LBExportData(status, data_snippets, 2);

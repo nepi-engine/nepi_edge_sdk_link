@@ -33,7 +33,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetSetHeading(NEPI_EDGE_LB_Data_Snippet_t sn
 NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetSetRollAngle(NEPI_EDGE_LB_Data_Snippet_t snippet, float roll_deg);
 NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetSetPitchAngle(NEPI_EDGE_LB_Data_Snippet_t snippet, float pitch_deg);
 NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetSetScores(NEPI_EDGE_LB_Data_Snippet_t snippet, float quality_score, float type_score, float event_score);
-NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetSetDataFile(NEPI_EDGE_LB_Data_Snippet_t snippet, const char *data_file_full_path);
+NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetSetDataFile(NEPI_EDGE_LB_Data_Snippet_t snippet, const char *data_file_with_path, uint8_t delete_on_export);
 
 NEPI_EDGE_RET_t NEPI_EDGE_LBExportData(const NEPI_EDGE_LB_Status_t status, const NEPI_EDGE_LB_Data_Snippet_t *snippets, size_t snippet_count);
 

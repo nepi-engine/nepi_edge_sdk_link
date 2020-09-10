@@ -295,7 +295,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetCreate(NEPI_EDGE_LB_Data_Snippet_t *snipp
   p->instance = instance;
   p->opaque_helper.msg_id = NEPI_EDGE_LB_MSG_ID_DATA;
   p->opaque_helper.fields_set = NEPI_EDGE_LB_Data_Snippet_Fields_TypeAndInstance;
-
+  
   return NEPI_EDGE_RET_OK;
 }
 
@@ -389,11 +389,13 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetSetScores(NEPI_EDGE_LB_Data_Snippet_t sni
   return NEPI_EDGE_RET_OK;
 }
 
-NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetSetDataFile(NEPI_EDGE_LB_Data_Snippet_t snippet, const char *data_file_full_path)
+NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetSetDataFile(NEPI_EDGE_LB_Data_Snippet_t snippet, const char *data_file_with_path, uint8_t delete_on_export)
 {
   VALIDATE_OPAQUE_TYPE(snippet, NEPI_EDGE_LB_MSG_ID_DATA, NEPI_EDGE_LB_Data_Snippet)
 
-  strncpy(p->data_file, data_file_full_path, NEPI_EDGE_MAX_DATA_SNIPPET_FILE_NAME_LENGTH);
+  // p->data_file is a pre-allocated array, so no need to allocate memory here
+  strncpy(p->data_file, data_file_with_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH);
+  p->delete_on_export = delete_on_export;
   p->opaque_helper.fields_set |= NEPI_EDGE_LB_Data_Snippet_Fields_DataFile;
 
   return NEPI_EDGE_RET_OK;
@@ -467,11 +469,71 @@ static NEPI_EDGE_RET_t export_status(const NEPI_EDGE_LB_Status_t status, const c
   return NEPI_EDGE_RET_OK;
 }
 
+static int copy_file(const char *src_filename, const char *destination_filename)
+{
+  FILE *src = fopen(src_filename, "r");
+  FILE *dest = fopen(destination_filename, "w");
+
+  if (src == NULL || dest == NULL)
+  {
+    return -1;
+  }
+
+  char cpy_buf[BUFSIZ];
+  size_t block_byte_count = 0;
+  while ((block_byte_count = fread(cpy_buf, sizeof(char), sizeof(cpy_buf), src)) > 0)
+  {
+    if (fwrite(cpy_buf, sizeof(char), block_byte_count, dest) != block_byte_count)
+    {
+      return -1;
+    }
+  }
+
+  fclose(src);
+  fclose(dest);
+}
+
 static NEPI_EDGE_RET_t export_data_snippet(NEPI_EDGE_LB_Data_Snippet_t snippet, const char* data_path, const struct NEPI_EDGE_LB_Status* status)
 {
-  // Get the status timestamp; we'll need this later
   VALIDATE_OPAQUE_TYPE(snippet, NEPI_EDGE_LB_MSG_ID_DATA, NEPI_EDGE_LB_Data_Snippet)
   ENSURE_FIELD_PRESENT(p, NEPI_EDGE_LB_Data_Snippet_Fields_TypeAndInstance)
+
+  // Move the snippet data file if one exists
+  if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Data_Snippet_Fields_DataFile))
+  {
+    // Get the new filename by finding the last path separator character in the old file
+    char *data_filename_ptr = strrchr(p->data_file, '/') + 1;
+    char data_filename[NEPI_EDGE_MAX_FILE_PATH_LENGTH]; // Must create a copy to avoid overlapping strcpy later
+    if (data_filename_ptr == 1) // has no path characters -- note the +1 above
+    {
+      strncpy(data_filename, p->data_file, NEPI_EDGE_MAX_FILE_PATH_LENGTH);
+    }
+    else
+    {
+      strncpy(data_filename, data_filename_ptr, NEPI_EDGE_MAX_FILE_PATH_LENGTH);
+    }
+    char new_filename_with_path[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
+    snprintf(new_filename_with_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s", data_path, data_filename);
+
+    // Copy or move it, depending on what was specified when the data file was added
+    if (p->delete_on_export)
+    {
+      if (-1 == rename(p->data_file, new_filename_with_path))
+      {
+        return NEPI_EDGE_RET_FILE_MOVE_ERROR;
+      }
+    }
+    else
+    {
+      if (-1 == copy_file(p->data_file, new_filename_with_path))
+      {
+        return NEPI_EDGE_RET_FILE_MOVE_ERROR;
+      }
+    }
+
+    // Update the filename in the data structure
+    strncpy(p->data_file, data_filename, NEPI_EDGE_MAX_FILE_PATH_LENGTH);
+  }
 
   char tmp_filename[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
   snprintf(tmp_filename, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%c%c%c%u.json", data_path, p->type[0], p->type[1], p->type[2], p->instance);

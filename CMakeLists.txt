@@ -51,20 +51,35 @@ target_link_libraries(nepi_sdk_example_session_c
 #############
 
 ## Declare the top-level directory for the install
-set(INSTALL_DESTINATION ${CMAKE_SOURCE_DIR}/install)
+set(INSTALL_DESTINATION ${CMAKE_SOURCE_DIR}/${CMAKE_BUILD_TYPE})
 
 ## Mark executables and/or libraries for installation
 install(TARGETS ${PROJECT_NAME}_static ${PROJECT_NAME}_shared nepi_sdk_example_session_c
-  ARCHIVE DESTINATION ${INSTALL_DESTINATION}${CMAKE_BUILD_TYPE}/lib
-  LIBRARY DESTINATION ${INSTALL_DESTINATION}${CMAKE_BUILD_TYPE}/lib
-  RUNTIME DESTINATION ${INSTALL_DESTINATION}${CMAKE_BUILD_TYPE}/bin
-  INCLUDES DESTINATION ${INSTALL_DESTINATION}${CMAKE_BUILD_TYPE}/include
+  ARCHIVE DESTINATION ${INSTALL_DESTINATION}/lib
+  LIBRARY DESTINATION ${INSTALL_DESTINATION}/lib
+  RUNTIME DESTINATION ${INSTALL_DESTINATION}/bin
+  INCLUDES DESTINATION ${INSTALL_DESTINATION}/include
+)
+
+## Mark example python for installation
+install(PROGRAMS examples/python/nepi_sdk_example_session.py
+  DESTINATION ${INSTALL_DESTINATION}/bin
+)
+
+## Add the Python bindings to the lib subfolder
+install(FILES python/nepi_edge_sdk.py
+  DESTINATION ${INSTALL_DESTINATION}/lib
+)
+
+## Add the environment setup script the bin folder
+install(FILES examples/examples_env.sh
+  DESTINATION ${INSTALL_DESTINATION}/bin
 )
 
 install(DIRECTORY include
-  DESTINATION ${INSTALL_DESTINATION}${CMAKE_BUILD_TYPE}/include
+  DESTINATION ${INSTALL_DESTINATION}/include
 )
 
-install(DIRECTORY examples/c/nepi_sdk_example_filesys
-  DESTINATION ${INSTALL_DESTINATION}${CMAKE_BUILD_TYPE}/bin
+install(DIRECTORY examples/nepi_sdk_example_filesys examples/example_files
+  DESTINATION ${INSTALL_DESTINATION}/bin
 )

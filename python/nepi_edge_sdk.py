@@ -35,7 +35,8 @@ class NEPIEdgeBase:
         libname = NEPI_EDGE_SDK_LIB_NAME
         self.c_lib = ctypes.CDLL(libname)
 
-    def exceptionIfError(self, err_val):
+    @staticmethod
+    def exceptionIfError(err_val):
         if (err_val == NEPI_EDGE_RET_OK):
             pass
         else:

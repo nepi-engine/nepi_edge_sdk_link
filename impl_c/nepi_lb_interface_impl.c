@@ -502,15 +502,15 @@ static NEPI_EDGE_RET_t export_data_snippet(NEPI_EDGE_LB_Data_Snippet_t snippet, 
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Data_Snippet_Fields_DataFile))
   {
     // Get the new filename by finding the last path separator character in the old file
-    char *data_filename_ptr = strrchr(p->data_file, '/') + 1;
+    char *data_filename_ptr = strrchr(p->data_file, '/');
     char data_filename[NEPI_EDGE_MAX_FILE_PATH_LENGTH]; // Must create a copy to avoid overlapping strcpy later
-    if (data_filename_ptr == 1) // has no path characters -- note the +1 above
+    if (data_filename_ptr == NULL) // has no path characters
     {
       strncpy(data_filename, p->data_file, NEPI_EDGE_MAX_FILE_PATH_LENGTH);
     }
     else
     {
-      strncpy(data_filename, data_filename_ptr, NEPI_EDGE_MAX_FILE_PATH_LENGTH);
+      strncpy(data_filename, (data_filename_ptr + 1), NEPI_EDGE_MAX_FILE_PATH_LENGTH);
     }
     char new_filename_with_path[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
     snprintf(new_filename_with_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s", data_path, data_filename);

@@ -57,7 +57,7 @@ class NEPIEdgeSDK(NEPIEdgeBase):
         self.exceptionIfError(self.c_lib.NEPI_EDGE_SetBotBaseFilePath(base_path.encode('utf-8')))
 
     def getBotBaseFilePath(self):
-        self.exceptionIfError(self.c_lib.NEPI_EDGE_GetBotBaseFilePath())
+        return self.c_lib.NEPI_EDGE_GetBotBaseFilePath().decode("utf-8")
 
 class NEPIEdgeLBStatus(NEPIEdgeBase):
 

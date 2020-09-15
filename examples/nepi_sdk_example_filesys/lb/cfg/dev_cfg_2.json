@@ -1,0 +1,8 @@
+{
+   "params":[
+      {
+        "identifier":"another_cfg_bool",
+        "value":true
+      }
+   ]
+}

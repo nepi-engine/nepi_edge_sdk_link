@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include <dirent.h>
 
 #include "nepi_edge_lb_interface.h"
 #include "nepi_lb_interface_impl.h"
@@ -295,7 +296,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBDataSnippetCreate(NEPI_EDGE_LB_Data_Snippet_t *snipp
   p->instance = instance;
   p->opaque_helper.msg_id = NEPI_EDGE_LB_MSG_ID_DATA;
   p->opaque_helper.fields_set = NEPI_EDGE_LB_Data_Snippet_Fields_TypeAndInstance;
-  
+
   return NEPI_EDGE_RET_OK;
 }
 
@@ -663,6 +664,42 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBConfigDestroy(NEPI_EDGE_LB_Config_t config)
   return NEPI_EDGE_RET_OK;
 }
 
+NEPI_EDGE_RET_t NEPI_EDGE_LBConfigDestroyArray(NEPI_EDGE_LB_Config_t *config_array, size_t count)
+{
+  // First, free any allocated sub-fields
+  for (size_t i = 0; i < count; ++i)
+  {
+    NEPI_EDGE_LB_Config_t config_entry = (struct NEPI_EDGE_LB_Config*)config_array + i;
+    VALIDATE_OPAQUE_TYPE(config_entry, NEPI_EDGE_LB_MSG_ID_CONFIG, NEPI_EDGE_LB_Config)
+
+    NEPI_EDGE_LB_Param_t *param = p->params;
+    NEPI_EDGE_LB_Param_t *tmp;
+    while (param != NULL)
+    {
+      tmp = param;
+      if (param->id_type == NEPI_EDGE_LB_PARAM_ID_TYPE_STRING)
+      {
+        NEPI_EDGE_FREE(param->id.id_string);
+      }
+      if (param->value_type == NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING)
+      {
+        NEPI_EDGE_FREE(param->value.string_val);
+      }
+      else if (param->value_type == NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES)
+      {
+        NEPI_EDGE_FREE(param->value.bytes_val.val);
+      }
+      param = param->next;
+      NEPI_EDGE_FREE(tmp); // Make sure to free the param, itself
+    }
+  }
+
+  // Now free the array block
+  NEPI_EDGE_FREE(config_array);
+  config_array = NULL;
+  return NEPI_EDGE_RET_OK;
+}
+
 static void parse_param_identifier(const struct json_token* token, NEPI_EDGE_LB_Param_t *param)
 {
   if (token->type == JSON_TYPE_STRING)
@@ -849,6 +886,84 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBImportConfig(NEPI_EDGE_LB_Config_t config, const cha
   return NEPI_EDGE_RET_OK;
 }
 
+static NEPI_EDGE_RET_t NEPI_EDGE_LBConfigCreateArray(struct NEPI_EDGE_LB_Config **config_array, size_t config_count)
+{
+  *config_array = NEPI_EDGE_MALLOC(sizeof(struct NEPI_EDGE_LB_Config) * config_count);
+  if (NULL == *config_array) return NEPI_EDGE_RET_MALLOC_ERR;
+
+  for (size_t i = 0; i < config_count; ++i)
+  {
+    struct NEPI_EDGE_LB_Config *p = *config_array + i;
+
+    p->opaque_helper.msg_id = NEPI_EDGE_LB_MSG_ID_CONFIG;
+    p->opaque_helper.fields_set = 0;
+    p->params = NULL;
+  }
+
+  return NEPI_EDGE_RET_OK;
+}
+
+static NEPI_EDGE_RET_t countJsonFilesInFolder(const char *path, size_t *count)
+{
+  DIR *dir = opendir(path);
+  if (dir == NULL) return NEPI_EDGE_RET_FILE_OPEN_ERR;
+
+  struct dirent *de;
+  *count = 0;
+  while (de = readdir(dir))
+  {
+    // Check that it is a JSON file and if so, count it
+    const char *dot = strrchr(de->d_name, '.');
+    if ((dot != NULL) && (0 == strncmp(dot, ".json", 5)))
+    {
+      ++(*count);
+    }
+  }
+  closedir(dir);
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_LBImportAllConfig(NEPI_EDGE_LB_General_t **config_array, size_t *config_count)
+{
+  // Get the path to the Config DT folder
+  char path[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
+  snprintf(path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s", NEPI_EDGE_GetBotBaseFilePath(), NEPI_EDGE_LB_CONFIG_FOLDER_PATH);
+
+  // Get the number of JSON files so that we can do the array allocation
+  size_t config_file_count;
+  NEPI_EDGE_RET_t ret = countJsonFilesInFolder(path, &config_file_count);
+  if (NEPI_EDGE_RET_OK != ret) return ret;
+
+  ret = NEPI_EDGE_LBConfigCreateArray((struct NEPI_EDGE_LB_Config**)config_array, config_file_count);
+  if (ret != NEPI_EDGE_RET_OK) return ret;
+
+  // Update the output count at this point so that if a failure occurs below this, the caller still knows
+  // how much space to deallocate
+  *config_count = config_file_count;
+
+  // Now open the directory stream, processing each JSON file in turn
+  DIR *dir = opendir(path);
+  if (dir == NULL) return NEPI_EDGE_RET_FILE_OPEN_ERR;
+
+  struct dirent *de;
+  size_t config_index = 0;
+  while (de = readdir(dir))
+  {
+    // Check that it is a JSON file and if so, process it
+    const char *dot = strrchr(de->d_name, '.');
+    if ((dot != NULL) && (0 == strncmp(dot, ".json", 5)))
+    {
+      NEPI_EDGE_LB_Config_t config_entry = (struct NEPI_EDGE_LB_Config*)(*config_array) + config_index;
+      ret = NEPI_EDGE_LBImportConfig(config_entry, de->d_name);
+      if (ret != NEPI_EDGE_RET_OK) return ret;
+
+      ++config_index;
+    }
+  }
+  closedir(dir);
+
+  return NEPI_EDGE_RET_OK;
+}
+
 NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralCreate(NEPI_EDGE_LB_General_t *general)
 {
   *general = NEPI_EDGE_MALLOC(sizeof(struct NEPI_EDGE_LB_General));
@@ -880,6 +995,31 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralDestroy(NEPI_EDGE_LB_General_t general)
   NEPI_EDGE_FREE(general);
   general = NULL;
 
+  return NEPI_EDGE_RET_OK;
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralDestroyArray(NEPI_EDGE_LB_General_t *general_array, size_t count)
+{
+  // First, free any allocated sub-fields
+  for (size_t i = 0; i < count; ++i)
+  {
+    NEPI_EDGE_LB_General_t general_entry = (struct NEPI_EDGE_LB_General*)general_array + i;
+    VALIDATE_OPAQUE_TYPE(general_entry, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
+
+    if (p->param.id_type == NEPI_EDGE_LB_PARAM_ID_TYPE_STRING)
+    {
+      NEPI_EDGE_FREE(p->param.id.id_string);
+    }
+    if (p->param.value_type == NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING ||
+        p->param.value_type == NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES)
+    {
+      NEPI_EDGE_FREE(p->param.value.string_val);
+    }
+  }
+
+  // Now free the type_array
+  NEPI_EDGE_FREE(general_array);
+  general_array = NULL;
   return NEPI_EDGE_RET_OK;
 }
 
@@ -1147,6 +1287,65 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBImportGeneral(NEPI_EDGE_LB_General_t general, const 
   //printf("%s\n", json_string); // Debugging
   json_walk(json_string, strlen(json_string), json_walk_general_callback, p);
   free(json_string); // Must free the frozen-malloc'd string
+
+  return NEPI_EDGE_RET_OK;
+}
+
+static NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralCreateArray(struct NEPI_EDGE_LB_General **general_array, size_t general_count)
+{
+  *general_array = NEPI_EDGE_MALLOC(sizeof(struct NEPI_EDGE_LB_General) * general_count);
+  if (NULL == *general_array) return NEPI_EDGE_RET_MALLOC_ERR;
+
+  for (size_t i = 0; i < general_count; ++i)
+  {
+    struct NEPI_EDGE_LB_General *p = *general_array + i;
+    p->opaque_helper.msg_id = NEPI_EDGE_LB_MSG_ID_GENERAL;
+    p->opaque_helper.fields_set = 0;
+  }
+
+  return NEPI_EDGE_RET_OK;
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_LBImportAllGeneral(NEPI_EDGE_LB_General_t **general_array, size_t *general_count)
+{
+  // Get the path to the General DT folder
+  char path[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
+  snprintf(path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s", NEPI_EDGE_GetBotBaseFilePath(), NEPI_EDGE_LB_GENERAL_DT_FOLDER_PATH);
+
+  // Now walk that directory to count the number of files so that we can do the array allocation
+  size_t general_file_count;
+  NEPI_EDGE_RET_t ret = countJsonFilesInFolder(path, &general_file_count);
+  if (NEPI_EDGE_RET_OK != ret) return ret;
+
+  ret = NEPI_EDGE_LBGeneralCreateArray((struct NEPI_EDGE_LB_General**)general_array, general_file_count);
+  if (ret != NEPI_EDGE_RET_OK) return ret;
+
+  // Update the output count at this point so that if a failure occurs below this, the caller still knows
+  // how much space to deallocate
+  *general_count = general_file_count;
+
+  // Now open the directory stream, processing each JSON file in turn
+  DIR *dir = opendir(path);
+  if (dir == NULL) return NEPI_EDGE_RET_FILE_OPEN_ERR;
+
+  struct dirent *de;
+  size_t general_index = 0;
+  while (de = readdir(dir))
+  {
+    // Check that it is a JSON file and if so, process it
+    const char *dot = strrchr(de->d_name, '.');
+    if ((dot != NULL) && (0 == strncmp(dot, ".json", 5)))
+    {
+      NEPI_EDGE_LB_General_t general_entry = (struct NEPI_EDGE_LB_General*)(*general_array) + general_index;
+      ret = NEPI_EDGE_LBImportGeneral(general_entry, de->d_name);
+      if (ret != NEPI_EDGE_RET_OK)
+      {
+        return ret;
+      }
+      ++general_index;
+    }
+  }
+  closedir(dir);
 
   return NEPI_EDGE_RET_OK;
 }

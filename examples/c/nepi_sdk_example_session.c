@@ -47,6 +47,7 @@ int main(int argc, char **argv)
 
   /* And export the status+data */
   NEPI_EDGE_LBExportData(status, data_snippets, 2);
+  printf("Created status and two associated data snippet files\n");
 
   /* Now create a general message */
   NEPI_EDGE_LB_General_t general_1;
@@ -56,6 +57,7 @@ int main(int argc, char **argv)
   NEPI_EDGE_LBGeneralSetPayloadStrFloat(general_1, general_1_payload_key, 3.14159f);
   /* And export it to a file for NEPI-BOT to consume */
   NEPI_EDGE_LBExportGeneral(general_1);
+  printf("Created a DO General file\n");
 
   /* Let's do another general message */
   NEPI_EDGE_LB_General_t general_2;
@@ -65,15 +67,19 @@ int main(int argc, char **argv)
   NEPI_EDGE_LBGeneralSetPayloadIntBytes(general_2, 12345, byte_array, 4);
   /* And export it to a file */
   NEPI_EDGE_LBExportGeneral(general_2);
+  printf("Created another DO General file\n");
 
-  /* Now we demonstrate import */
-  NEPI_EDGE_LB_Config_t config_1;
-  NEPI_EDGE_LBConfigCreate(&config_1);
-  NEPI_EDGE_LBImportConfig(config_1, "dev_cfg_1.json"); // Will find this in the lb/config folder
+  /* Now we demonstrate import -- First a collection of Config messages */
+  NEPI_EDGE_LB_Config_t *config_array;
+  size_t config_count;
+  NEPI_EDGE_LBImportAllConfig(&config_array, &config_count); // Will find this in the lb/config folder
+  printf("Imported %lu Config messages\n", config_count);
 
-  NEPI_EDGE_LB_General_t general_dt_1;
-  NEPI_EDGE_LBGeneralCreate(&general_dt_1);
-  NEPI_EDGE_LBImportGeneral(general_dt_1, "dev_dt_msg_1.json"); // Will find this in the lb/dt-msg folder
+  /* Now import a collection of General DT messages */
+  NEPI_EDGE_LB_General_t *general_dt_array;
+  size_t general_dt_count;
+  NEPI_EDGE_LBImportAllGeneral(&general_dt_array, &general_dt_count); // Imports all from lb/dt-msg folder
+  printf("Imported %lu General-DT messages\n", general_dt_count);
 
   /* Always destroy what you create */
   NEPI_EDGE_LBStatusDestroy(status);
@@ -81,8 +87,8 @@ int main(int argc, char **argv)
   NEPI_EDGE_LBDataSnippetDestroy(data_snippets[1]);
   NEPI_EDGE_LBGeneralDestroy(general_1);
   NEPI_EDGE_LBGeneralDestroy(general_2);
-  NEPI_EDGE_LBConfigDestroy(config_1);
-  NEPI_EDGE_LBGeneralDestroy(general_dt_1);
+  NEPI_EDGE_LBConfigDestroyArray(config_array, config_count); // ImportAll does creation under the hood
+  NEPI_EDGE_LBGeneralDestroyArray(general_dt_array, general_dt_count); // ImportAll does creation under the hood
 
   return 0;
 }

@@ -51,6 +51,9 @@ if __name__ == "__main__":
     # Now we demonstrate import -- First a collection of Config messages */
     cfg_list = NEPIEdgeLBConfig.importAll(sdk)
     print("Imported " + str(len(cfg_list)) + " Config messages")
+    for i,cfg_msg in enumerate(cfg_list):
+        item_count = cfg_msg.getItemCount()
+        print("Config message " + str(i) + " has " + str(item_count) + " items")
 
     general_dt_list = NEPIEdgeLBGeneral.importAll(sdk)
     print("Imported " + str(len(general_dt_list)) + " General messages")

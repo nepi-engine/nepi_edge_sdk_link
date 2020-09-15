@@ -45,6 +45,8 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBConfigDestroyArray(NEPI_EDGE_LB_Config_t *config_arr
 
 NEPI_EDGE_RET_t NEPI_EDGE_LBImportConfig(NEPI_EDGE_LB_Config_t config, const char* filename);
 NEPI_EDGE_RET_t NEPI_EDGE_LBImportAllConfig(NEPI_EDGE_LB_Config_t **config_array, size_t *count);
+NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetArrayEntry(NEPI_EDGE_LB_Config_t *config_array, size_t index, NEPI_EDGE_LB_Config_t **config_entry);
+NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetItemCount(NEPI_EDGE_LB_Config_t *config, size_t *item_count);
 // TODO: Field extraction methods
 
 /* **************** General Message API **************** */

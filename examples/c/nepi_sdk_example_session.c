@@ -74,6 +74,14 @@ int main(int argc, char **argv)
   size_t config_count;
   NEPI_EDGE_LBImportAllConfig(&config_array, &config_count); // Will find this in the lb/config folder
   printf("Imported %lu Config messages\n", config_count);
+  for (size_t i = 0; i < config_count; ++i)
+  {
+    size_t cfg_item_count;
+    NEPI_EDGE_LB_Config_t *config_entry;
+    NEPI_EDGE_LBConfigGetArrayEntry(config_array, i, &config_entry);
+    NEPI_EDGE_LBConfigGetItemCount(config_entry, &cfg_item_count);
+    printf("Config message %lu has %lu items\n", i, cfg_item_count);
+  }
 
   /* Now import a collection of General DT messages */
   NEPI_EDGE_LB_General_t *general_dt_array;

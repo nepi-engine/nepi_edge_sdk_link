@@ -177,6 +177,7 @@ class NEPIEdgeLBConfig(NEPIEdgeBase):
 
         self.c_lib.NEPI_EDGE_LBImportConfig.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
         #self.c_lib.NEPI_EDGE_LBImportAllConfig.argtypes = [ctypes.POINTER(ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_uint]
+        self.c_lib.NEPI_EDGE_LBConfigGetItemCount.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint)]
 
     def __init__(self):
         super().__init__()
@@ -203,6 +204,11 @@ class NEPIEdgeLBConfig(NEPIEdgeBase):
                 new_instance.importFromFile(filename)
                 cfg_instances.append(new_instance)
         return cfg_instances
+
+    def getItemCount(self):
+        item_count = ctypes.c_uint()
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_LBConfigGetItemCount(self.c_ptr_self, ctypes.byref(item_count)))
+        return item_count.value
 
 class NEPIEdgeLBGeneral(NEPIEdgeBase):
 

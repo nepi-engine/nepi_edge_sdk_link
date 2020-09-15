@@ -964,6 +964,29 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBImportAllConfig(NEPI_EDGE_LB_General_t **config_arra
   return NEPI_EDGE_RET_OK;
 }
 
+NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetArrayEntry(NEPI_EDGE_LB_Config_t *config_array, size_t index, NEPI_EDGE_LB_Config_t **config_entry)
+{
+  *config_entry = (NEPI_EDGE_LB_Config_t*)((struct NEPI_EDGE_LB_Config*)(config_array) + index);
+  VALIDATE_OPAQUE_TYPE(config_entry, NEPI_EDGE_LB_MSG_ID_CONFIG, NEPI_EDGE_LB_Config)
+
+  return NEPI_EDGE_RET_OK;
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetItemCount(NEPI_EDGE_LB_Config_t *config, size_t *item_count)
+{
+  VALIDATE_OPAQUE_TYPE(config, NEPI_EDGE_LB_MSG_ID_CONFIG, NEPI_EDGE_LB_Config)
+
+  *item_count = 0;
+  NEPI_EDGE_LB_Param_t *param = p->params;
+  while(param != NULL)
+  {
+    ++(*item_count);
+    param = param->next;
+  }
+
+  return NEPI_EDGE_RET_OK;
+}
+
 NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralCreate(NEPI_EDGE_LB_General_t *general)
 {
   *general = NEPI_EDGE_MALLOC(sizeof(struct NEPI_EDGE_LB_General));

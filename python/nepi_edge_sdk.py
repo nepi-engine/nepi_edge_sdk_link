@@ -1,6 +1,7 @@
 import ctypes
 import pathlib
 import errno
+import os
 
 NEPI_EDGE_SDK_LIB_NAME = "libnepi_edge_sdk_shared.so"
 
@@ -26,7 +27,6 @@ class NEPIEdgeSDKError(Exception):
     def __init__(self, err_val, message):
         self.err_val = err_val
         self.message = message
-
 
 class NEPIEdgeBase:
     c_lib = None
@@ -168,6 +168,42 @@ class NEPIEdgeLBDataSnippet(NEPIEdgeBase):
             delete_flag = 1 if (delete_data_file_after_export is True) else 0
             self.exceptionIfError(self.c_lib.NEPI_EDGE_LBDataSnippetSetDataFile(self.c_ptr_self, data_file.encode('utf-8'), delete_flag))
 
+class NEPIEdgeLBConfig(NEPIEdgeBase):
+
+    def initFunctionPrototypes(self):
+        self.c_lib.NEPI_EDGE_LBConfigCreate.argtypes = [ctypes.POINTER(ctypes.c_void_p)]
+        self.c_lib.NEPI_EDGE_LBConfigDestroy.argtypes = [ctypes.c_void_p]
+        #self.c_lib.NEPI_EDGE_LBConfigDestroyArray.argtypes = [ctypes.POINTER(ctypes.c_void_p), ctypes.c_uint]
+
+        self.c_lib.NEPI_EDGE_LBImportConfig.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+        #self.c_lib.NEPI_EDGE_LBImportAllConfig.argtypes = [ctypes.POINTER(ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_uint]
+
+    def __init__(self):
+        super().__init__()
+        self.c_ptr_self = ctypes.c_void_p()
+
+        self.initFunctionPrototypes()
+
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_LBConfigCreate(ctypes.byref(self.c_ptr_self)))
+
+    def __del__(self):
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_LBConfigDestroy(self.c_ptr_self))
+
+    def importFromFile(self, filename):
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_LBImportConfig(self.c_ptr_self, filename.encode('utf-8')))
+
+    @staticmethod
+    def importAll(nepi_edge_sdk):
+        cfg_path = nepi_edge_sdk.getBotBaseFilePath() + "/lb/cfg"
+
+        cfg_instances = list()
+        for filename in os.listdir(cfg_path):
+            if filename.endswith(".json"):
+                new_instance = NEPIEdgeLBConfig()
+                new_instance.importFromFile(filename)
+                cfg_instances.append(new_instance)
+        return cfg_instances
+
 class NEPIEdgeLBGeneral(NEPIEdgeBase):
 
     def initFunctionPrototypes(self):
@@ -241,3 +277,15 @@ class NEPIEdgeLBGeneral(NEPIEdgeBase):
 
     def importFromFile(self, filename):
         self.exceptionIfError(self.c_lib.NEPI_EDGE_LBImportGeneral(self.c_ptr_self, filename.encode('utf-8')))
+
+    @staticmethod
+    def importAll(nepi_edge_sdk):
+        general_path = nepi_edge_sdk.getBotBaseFilePath() + "/lb/dt-msg"
+
+        general_instances = list()
+        for filename in os.listdir(general_path):
+            if filename.endswith(".json"):
+                new_instance = NEPIEdgeLBGeneral()
+                new_instance.importFromFile(filename)
+                general_instances.append(new_instance)
+        return general_instances

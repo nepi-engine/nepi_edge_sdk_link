@@ -30,6 +30,7 @@ if __name__ == "__main__":
 
     # And export the status+data
     status.export([data_snippet_1, data_snippet_2])
+    print("Created status and two associated data snippet files");
 
     # Now create a general message
     general_1 = NEPIEdgeLBGeneral()
@@ -37,6 +38,7 @@ if __name__ == "__main__":
     general_1.setPayload("WantSomePI?", 3.14159)
     # And export it to a file for NEPI-BOT to consume
     general_1.export()
+    print("Created a DO General file")
 
     # Let's do another general message
     general_2 = NEPIEdgeLBGeneral()
@@ -44,6 +46,11 @@ if __name__ == "__main__":
     general_2.setPayload(12345, bytes([0xDE, 0xAD, 0xBE, 0xEF]))
     # And export it to a file
     general_2.export()
+    print("Created another DO General file")
 
-    # Now we demonstrate import
-    # TODO
+    # Now we demonstrate import -- First a collection of Config messages */
+    cfg_list = NEPIEdgeLBConfig.importAll(sdk)
+    print("Imported " + str(len(cfg_list)) + " Config messages")
+
+    general_dt_list = NEPIEdgeLBGeneral.importAll(sdk)
+    print("Imported " + str(len(general_dt_list)) + " General messages")

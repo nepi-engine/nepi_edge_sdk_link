@@ -76,3 +76,7 @@ if __name__ == "__main__":
 
     general_dt_list = NEPIEdgeLBGeneral.importAll(sdk)
     print("Imported " + str(len(general_dt_list)) + " General messages")
+    for i, general_dt_msg in enumerate(general_dt_list):
+        print("General-DT Msg " + str(i))
+        (param_id, param_val) = general_dt_msg.getParam()
+        printParam(param_id, param_val)

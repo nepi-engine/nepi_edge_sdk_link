@@ -298,6 +298,8 @@ class NEPIEdgeLBGeneral(NEPIEdgeBase):
         self.c_lib.NEPI_EDGE_LBExportGeneral.argtypes = [ctypes.c_void_p]
 
         self.c_lib.NEPI_EDGE_LBImportGeneral.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+        self.c_lib.NEPI_EDGE_LBGeneralGetParam.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(NEPIEdgeLBParamId),
+                                                           ctypes.POINTER(ctypes.c_int), ctypes.POINTER(NEPIEdgeLBParamValue)]
 
     def __init__(self):
         super().__init__()
@@ -359,3 +361,34 @@ class NEPIEdgeLBGeneral(NEPIEdgeBase):
                 new_instance.importFromFile(filename)
                 general_instances.append(new_instance)
         return general_instances
+
+    def getParam(self):
+        id_type = ctypes.c_int()
+        id = NEPIEdgeLBParamId()
+        val_type = ctypes.c_int()
+        val = NEPIEdgeLBParamValue()
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_LBConfigGetParam(self.c_ptr_self, ctypes.byref(id_type), ctypes.byref(id), ctypes.byref(val_type), ctypes.byref(val)))
+
+        ret_id = None
+        if (id_type.value == NEPI_EDGE_LB_PARAM_ID_TYPE_STRING):
+            ret_id = id.id_string
+        elif (id_type.value == NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER):
+            ret_id = id.id_number
+
+        ret_val = None
+        if (val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_BOOL):
+            ret_val = val.bool_val
+        elif (val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_INT64):
+            ret_val = val.int64_val
+        elif (val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_UINT64):
+            ret_val = val.uint64_val
+        elif (val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_FLOAT):
+            ret_val = val.float_val
+        elif (val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_DOUBLE):
+            ret_val = val.double_val
+        elif (val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING):
+            ret_val = val.string_val
+        elif(val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES):
+            ret_val = val.bytes_val.val[:val.bytes_val.length]
+
+        return (ret_id, ret_val)

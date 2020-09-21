@@ -1398,3 +1398,23 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBImportAllGeneral(NEPI_EDGE_LB_General_t **general_ar
 
   return NEPI_EDGE_RET_OK;
 }
+
+NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralGetArrayEntry(NEPI_EDGE_LB_General_t *general_array, size_t index, NEPI_EDGE_LB_General_t **general_entry)
+{
+  *general_entry = (NEPI_EDGE_LB_General_t*)((struct NEPI_EDGE_LB_General*)(general_array) + index);
+  VALIDATE_OPAQUE_TYPE(general_entry, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
+
+  return NEPI_EDGE_RET_OK;
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralGetParam(NEPI_EDGE_LB_General_t general, NEPI_EDGE_LB_Param_Id_Type_t *id_type, NEPI_EDGE_LB_Param_Id_t *id,
+                                            NEPI_EDGE_LB_Param_Value_Type_t *value_type, NEPI_EDGE_LB_Param_Value_t *value)
+{
+  VALIDATE_OPAQUE_TYPE(general, NEPI_EDGE_LB_MSG_ID_GENERAL, NEPI_EDGE_LB_General)
+
+  *id_type = p->param.id_type;
+  *id = p->param.id;
+  *value_type = p->param.value_type;
+  *value = p->param.value;
+  return NEPI_EDGE_RET_OK;
+}

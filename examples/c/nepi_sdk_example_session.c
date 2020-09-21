@@ -136,6 +136,19 @@ int main(int argc, char **argv)
   size_t general_dt_count;
   NEPI_EDGE_LBImportAllGeneral(&general_dt_array, &general_dt_count); // Imports all from lb/dt-msg folder
   printf("Imported %lu General-DT messages\n", general_dt_count);
+  for (size_t i = 0; i < general_dt_count; ++i)
+  {
+    NEPI_EDGE_LB_General_t *general_entry;
+    NEPI_EDGE_LBGeneralGetArrayEntry(general_dt_array, i, &general_entry);
+
+    NEPI_EDGE_LB_Param_Id_Type_t id_type;
+    NEPI_EDGE_LB_Param_Id_t id;
+    NEPI_EDGE_LB_Param_Value_Type_t value_type;
+    NEPI_EDGE_LB_Param_Value_t value;
+    NEPI_EDGE_LBGeneralGetParam(general_entry, &id_type, &id, &value_type, &value);
+    printf("\tGeneral-DT Msg %lu Param:\n", i);
+    printParam(id_type, id, value_type, value);
+  }
 
   /* Always destroy what you create */
   NEPI_EDGE_LBStatusDestroy(status);

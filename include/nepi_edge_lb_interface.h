@@ -119,6 +119,9 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBExportGeneral(NEPI_EDGE_LB_General_t general);
 
 NEPI_EDGE_RET_t NEPI_EDGE_LBImportGeneral(NEPI_EDGE_LB_General_t general, const char* filename);
 NEPI_EDGE_RET_t NEPI_EDGE_LBImportAllGeneral(NEPI_EDGE_LB_General_t **general_array, size_t *count);
-// TODO Field extraction methods
+NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralGetArrayEntry(NEPI_EDGE_LB_General_t *general_array, size_t index, NEPI_EDGE_LB_General_t **general_entry);
+NEPI_EDGE_RET_t NEPI_EDGE_LBGeneralGetParam(NEPI_EDGE_LB_General_t general, NEPI_EDGE_LB_Param_Id_Type_t *id_type, NEPI_EDGE_LB_Param_Id_t *id,
+                                            NEPI_EDGE_LB_Param_Value_Type_t *value_type, NEPI_EDGE_LB_Param_Value_t *value);
+
 
 #endif //__NEPI_EDGE_LB_INTERFACE_H

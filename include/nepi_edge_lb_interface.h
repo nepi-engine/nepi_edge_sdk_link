@@ -7,6 +7,49 @@
 #include "nepi_edge_lb_consts.h"
 #include "nepi_edge_errors.h"
 
+/* **************** Config/General Retreival Types and Support API **************** */
+typedef enum NEPI_EDGE_LB_Param_Id_Type
+{
+  NEPI_EDGE_LB_PARAM_ID_TYPE_STRING,
+  NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER,
+  NEPI_EDGE_LB_PARAM_ID_TYPE_UNKNOWN
+} NEPI_EDGE_LB_Param_Id_Type_t;
+
+typedef union NEPI_EDGE_LB_Param_Id
+{
+  char *id_string;
+  uint32_t id_number;
+} NEPI_EDGE_LB_Param_Id_t;
+
+typedef enum NEPI_EDGE_LB_Param_Value_Type
+{
+  NEPI_EDGE_LB_PARAM_VALUE_TYPE_BOOL,
+  NEPI_EDGE_LB_PARAM_VALUE_TYPE_INT64,
+  NEPI_EDGE_LB_PARAM_VALUE_TYPE_UINT64,
+  NEPI_EDGE_LB_PARAM_VALUE_TYPE_FLOAT,
+  NEPI_EDGE_LB_PARAM_VALUE_TYPE_DOUBLE,
+  NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING,
+  NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES,
+  NEPI_EDGE_LB_PARAM_VALUE_TYPE_UNKNOWN
+} NEPI_EDGE_LB_Param_Value_Type_t;
+
+typedef struct NEPI_EDGE_LB_Param_Bytes
+{
+  uint8_t *val;
+  size_t length;
+} NEPI_EDGE_LB_Param_Bytes_t;
+
+typedef union NEPI_EDGE_LB_Param_Value
+{
+  uint8_t bool_val;
+  int64_t int64_val;
+  uint64_t uint64_val;
+  float float_val;
+  double double_val;
+  char *string_val;
+  NEPI_EDGE_LB_Param_Bytes_t bytes_val;
+} NEPI_EDGE_LB_Param_Value_t;
+
 /* **************** Status and Data Message API **************** */
 typedef void* NEPI_EDGE_LB_Status_t;
 NEPI_EDGE_RET_t NEPI_EDGE_LBStatusCreate(NEPI_EDGE_LB_Status_t *status, const char* timestamp_rfc3339);
@@ -46,8 +89,10 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBConfigDestroyArray(NEPI_EDGE_LB_Config_t *config_arr
 NEPI_EDGE_RET_t NEPI_EDGE_LBImportConfig(NEPI_EDGE_LB_Config_t config, const char* filename);
 NEPI_EDGE_RET_t NEPI_EDGE_LBImportAllConfig(NEPI_EDGE_LB_Config_t **config_array, size_t *count);
 NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetArrayEntry(NEPI_EDGE_LB_Config_t *config_array, size_t index, NEPI_EDGE_LB_Config_t **config_entry);
-NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetItemCount(NEPI_EDGE_LB_Config_t *config, size_t *item_count);
-// TODO: Field extraction methods
+NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetParamCount(NEPI_EDGE_LB_Config_t *config, size_t *item_count);
+NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetParam(NEPI_EDGE_LB_Config_t config, size_t param_index,
+                                           NEPI_EDGE_LB_Param_Id_Type_t *id_type, NEPI_EDGE_LB_Param_Id_t *id,
+                                           NEPI_EDGE_LB_Param_Value_Type_t *value_type, NEPI_EDGE_LB_Param_Value_t *value);
 
 /* **************** General Message API **************** */
 typedef void* NEPI_EDGE_LB_General_t;

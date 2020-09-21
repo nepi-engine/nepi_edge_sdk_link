@@ -84,48 +84,6 @@ typedef enum NEPI_EDGE_LB_Data_Snippet_Fields_Bitmask
   NEPI_EDGE_LB_Data_Snippet_Fields_DataFile = (1u << 8)
 } NEPI_EDGE_LB_Data_Snippet_Fields_Bitmask_t;
 
-typedef enum NEPI_EDGE_LB_Param_Id_Type
-{
-  NEPI_EDGE_LB_PARAM_ID_TYPE_STRING,
-  NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER,
-  NEPI_EDGE_LB_PARAM_ID_TYPE_UNKNOWN
-} NEPI_EDGE_LB_Param_Id_Type_t;
-
-typedef union NEPI_EDGE_LB_Param_Id
-{
-  char *id_string;
-  uint32_t id_number;
-} NEPI_EDGE_LB_Param_Id_t;
-
-typedef enum NEPI_EDGE_LB_Param_Value_Type
-{
-  NEPI_EDGE_LB_PARAM_VALUE_TYPE_BOOL,
-  NEPI_EDGE_LB_PARAM_VALUE_TYPE_INT64,
-  NEPI_EDGE_LB_PARAM_VALUE_TYPE_UINT64,
-  NEPI_EDGE_LB_PARAM_VALUE_TYPE_FLOAT,
-  NEPI_EDGE_LB_PARAM_VALUE_TYPE_DOUBLE,
-  NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING,
-  NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES,
-  NEPI_EDGE_LB_PARAM_VALUE_TYPE_UNKNOWN
-} NEPI_EDGE_LB_Param_Value_Type_t;
-
-typedef struct NEPI_EDGE_LB_Param_Bytes
-{
-  uint8_t *val;
-  size_t length;
-} NEPI_EDGE_LB_Param_Bytes_t;
-
-typedef union NEPI_EDGE_LB_Param_Value
-{
-  uint8_t bool_val;
-  int64_t int64_val;
-  uint64_t uint64_val;
-  float float_val;
-  double double_val;
-  char *string_val;
-  NEPI_EDGE_LB_Param_Bytes_t bytes_val;
-} NEPI_EDGE_LB_Param_Value_t;
-
 typedef struct NEPI_EDGE_LB_Param
 {
   NEPI_EDGE_LB_Param_Id_Type_t id_type;

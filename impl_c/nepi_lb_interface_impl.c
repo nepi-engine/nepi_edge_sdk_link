@@ -153,6 +153,7 @@ static void writeParamToJsonFile(FILE* open_file, const NEPI_EDGE_LB_Param_t *pa
   }
 }
 
+
 NEPI_EDGE_RET_t NEPI_EDGE_LBStatusCreate(NEPI_EDGE_LB_Status_t *status, const char* timestamp_rfc3339)
 {
   *status = NEPI_EDGE_MALLOC(sizeof(struct NEPI_EDGE_LB_Status));
@@ -972,7 +973,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetArrayEntry(NEPI_EDGE_LB_Config_t *config_ar
   return NEPI_EDGE_RET_OK;
 }
 
-NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetItemCount(NEPI_EDGE_LB_Config_t *config, size_t *item_count)
+NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetParamCount(NEPI_EDGE_LB_Config_t *config, size_t *item_count)
 {
   VALIDATE_OPAQUE_TYPE(config, NEPI_EDGE_LB_MSG_ID_CONFIG, NEPI_EDGE_LB_Config)
 
@@ -984,6 +985,31 @@ NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetItemCount(NEPI_EDGE_LB_Config_t *config, si
     param = param->next;
   }
 
+  return NEPI_EDGE_RET_OK;
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_LBConfigGetParam(NEPI_EDGE_LB_Config_t config, size_t item_index,
+                                           NEPI_EDGE_LB_Param_Id_Type_t *id_type, NEPI_EDGE_LB_Param_Id_t *id,
+                                           NEPI_EDGE_LB_Param_Value_Type_t *value_type, NEPI_EDGE_LB_Param_Value_t *value)
+{
+
+  VALIDATE_OPAQUE_TYPE(config, NEPI_EDGE_LB_MSG_ID_CONFIG, NEPI_EDGE_LB_Config)
+
+  // First, navigate through linked list to the correct param (item)
+  NEPI_EDGE_LB_Param_t *param = p->params;
+  size_t count = 0;
+  while(param != NULL)
+  {
+    if (count == item_index) break;
+    param = param->next;
+    ++count;
+  }
+  if (count != item_index) return NEPI_EDGE_RET_ARG_OUT_OF_RANGE;
+
+  *id_type = param->id_type;
+  *id = param->id;
+  *value_type = param->value_type;
+  *value = param->value;
   return NEPI_EDGE_RET_OK;
 }
 

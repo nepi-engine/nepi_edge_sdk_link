@@ -2,6 +2,21 @@
 
 from nepi_edge_sdk import *
 
+# Helper for config and general message params
+def printParam(param_id, param_val):
+    id_string = None
+    val_string = None
+
+    if (isinstance(param_id, bytes)):
+        id_string = param_id.decode('utf-8')
+    elif (isinstance(param_id, int)):
+        id_string = str(param_id)
+    else:
+        id_string = "???"
+
+    print("\t\tID (" + str(type(param_id)) + "): " + id_string)
+    print("\t\tVal (" + str(type(param_val)) + "): " + str(param_val))
+
 if __name__ == "__main__":
     print("Testing NEPIEdgeSdk (python bindings)")
     sdk = NEPIEdgeSDK()
@@ -52,8 +67,12 @@ if __name__ == "__main__":
     cfg_list = NEPIEdgeLBConfig.importAll(sdk)
     print("Imported " + str(len(cfg_list)) + " Config messages")
     for i,cfg_msg in enumerate(cfg_list):
-        item_count = cfg_msg.getItemCount()
-        print("Config message " + str(i) + " has " + str(item_count) + " items")
+        param_count = cfg_msg.getParamCount()
+        print("Config message " + str(i) + " has " + str(param_count) + " params")
+        for j in range(param_count):
+            print("\tParam " + str(j) + ":")
+            (param_id, param_val) = cfg_msg.getParam(j)
+            printParam(param_id, param_val)
 
     general_dt_list = NEPIEdgeLBGeneral.importAll(sdk)
     print("Imported " + str(len(general_dt_list)) + " General messages")

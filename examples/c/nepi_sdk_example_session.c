@@ -3,8 +3,46 @@
 #include "nepi_edge_sdk.h"
 #include "nepi_edge_lb_interface.h"
 
-/* Return codes not checked for brevity; you should check them */
+/* Helper for config and general message params */
+void printParam(NEPI_EDGE_LB_Param_Id_Type_t id_type, NEPI_EDGE_LB_Param_Id_t id,
+                 NEPI_EDGE_LB_Param_Value_Type_t value_type, NEPI_EDGE_LB_Param_Value_t val)
+{
+  switch (id_type)
+  {
+    case NEPI_EDGE_LB_PARAM_ID_TYPE_STRING:
+      printf("\t\tID (string): %s\n", id.id_string); break;
+    case NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER:
+      printf("\t\tID (number): %u\n", id.id_number); break;
+    default:
+      printf("\t\tID Type Unknown!!!\n"); break;
+  }
 
+  switch(value_type)
+  {
+    case NEPI_EDGE_LB_PARAM_VALUE_TYPE_BOOL:
+      printf("\t\tVal (boolean): %s\n", (val.bool_val == 0)? "false" : "true"); break;
+    case NEPI_EDGE_LB_PARAM_VALUE_TYPE_INT64:
+      printf("\t\tVal (int64): %ld\n", val.int64_val); break;
+    case NEPI_EDGE_LB_PARAM_VALUE_TYPE_UINT64:
+      printf("\t\tVal (uint64): %lu\n", val.uint64_val); break;
+    case NEPI_EDGE_LB_PARAM_VALUE_TYPE_FLOAT:
+      printf("\t\tVal (float): %f\n", val.float_val); break;
+    case NEPI_EDGE_LB_PARAM_VALUE_TYPE_DOUBLE:
+      printf("\t\tVal (double): %f\n", val.double_val); break;
+    case NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING:
+      printf("\t\tVal (string): %s\n", val.string_val); break;
+    case NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES:
+      printf("\t\tVal (byte array): %lu entries\n\t\t[", val.bytes_val.length);
+      for (size_t i = 0; i < val.bytes_val.length; ++i)
+      {
+        printf("0x%02X%s", *(val.bytes_val.val + i), (i % 8 == 7)? "\n\t\t" : " ");
+      }
+      printf("]\n"); break;
+    default: printf("\t\tValue Type Unknown!!!\n");
+  }
+}
+
+/* Return codes not checked for brevity; you should check them in your code */
 int main(int argc, char **argv)
 {
   printf("Testing NEPIEdgeSdk (C-language bindings)\n");
@@ -76,11 +114,21 @@ int main(int argc, char **argv)
   printf("Imported %lu Config messages\n", config_count);
   for (size_t i = 0; i < config_count; ++i)
   {
-    size_t cfg_item_count;
+    size_t cfg_param_count;
     NEPI_EDGE_LB_Config_t *config_entry;
     NEPI_EDGE_LBConfigGetArrayEntry(config_array, i, &config_entry);
-    NEPI_EDGE_LBConfigGetItemCount(config_entry, &cfg_item_count);
-    printf("Config message %lu has %lu items\n", i, cfg_item_count);
+    NEPI_EDGE_LBConfigGetParamCount(config_entry, &cfg_param_count);
+    printf("Config message %lu has %lu parameters\n", i, cfg_param_count);
+    for (size_t j = 0; j < cfg_param_count; ++j)
+    {
+      NEPI_EDGE_LB_Param_Id_Type_t id_type;
+      NEPI_EDGE_LB_Param_Id_t id;
+      NEPI_EDGE_LB_Param_Value_Type_t value_type;
+      NEPI_EDGE_LB_Param_Value_t value;
+      NEPI_EDGE_LBConfigGetParam(config_entry, j, &id_type, &id, &value_type, &value);
+      printf("\tParam %lu:\n", j);
+      printParam(id_type, id, value_type, value);
+    }
   }
 
   /* Now import a collection of General DT messages */

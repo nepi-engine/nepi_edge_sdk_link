@@ -23,10 +23,40 @@ NEPI_EDGE_RET_BAD_PARAM = -12
 NEPI_EDGE_HEADING_REF_TRUE_NORTH = 0,
 NEPI_EDGE_HEADING_REF_MAG_NORTH = 1
 
+NEPI_EDGE_LB_PARAM_ID_TYPE_STRING = 0
+NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER = 1
+NEPI_EDGE_LB_PARAM_ID_TYPE_UNKNOWN = 2
+
+NEPI_EDGE_LB_PARAM_VALUE_TYPE_BOOL = 0
+NEPI_EDGE_LB_PARAM_VALUE_TYPE_INT64 = 1
+NEPI_EDGE_LB_PARAM_VALUE_TYPE_UINT64 = 2
+NEPI_EDGE_LB_PARAM_VALUE_TYPE_FLOAT = 3
+NEPI_EDGE_LB_PARAM_VALUE_TYPE_DOUBLE = 4
+NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING = 5
+NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES = 6
+NEPI_EDGE_LB_PARAM_VALUE_TYPE_UNKNOWN = 7
+
 class NEPIEdgeSDKError(Exception):
     def __init__(self, err_val, message):
         self.err_val = err_val
         self.message = message
+
+class NEPIEdgeLBParamId(ctypes.Union):
+    _fields_ = [("id_string", ctypes.c_char_p),
+                ("id_number", ctypes.c_uint)]
+
+class NEPIEdgeLBParamBytes(ctypes.Structure):
+    _fields_ = [("val", ctypes.POINTER(ctypes.c_uint8)),
+              ("length", ctypes.c_size_t)]
+
+class NEPIEdgeLBParamValue(ctypes.Union):
+    _fields_ = [("bool_val", ctypes.c_uint8),
+                ("int64_val", ctypes.c_int64),
+                ("uint64_val", ctypes.c_uint64),
+                ("float_val", ctypes.c_float),
+                ("double_val", ctypes.c_double),
+                ("string_val", ctypes.c_char_p),
+                ("bytes_val", NEPIEdgeLBParamBytes)]
 
 class NEPIEdgeBase:
     c_lib = None
@@ -177,7 +207,10 @@ class NEPIEdgeLBConfig(NEPIEdgeBase):
 
         self.c_lib.NEPI_EDGE_LBImportConfig.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
         #self.c_lib.NEPI_EDGE_LBImportAllConfig.argtypes = [ctypes.POINTER(ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_uint]
-        self.c_lib.NEPI_EDGE_LBConfigGetItemCount.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint)]
+        self.c_lib.NEPI_EDGE_LBConfigGetParamCount.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint)]
+        self.c_lib.NEPI_EDGE_LBConfigGetParam.argtypes = [ctypes.c_void_p, ctypes.c_size_t,
+                                                          ctypes.POINTER(ctypes.c_int), ctypes.POINTER(NEPIEdgeLBParamId),
+                                                          ctypes.POINTER(ctypes.c_int), ctypes.POINTER(NEPIEdgeLBParamValue)]
 
     def __init__(self):
         super().__init__()
@@ -205,10 +238,41 @@ class NEPIEdgeLBConfig(NEPIEdgeBase):
                 cfg_instances.append(new_instance)
         return cfg_instances
 
-    def getItemCount(self):
+    def getParamCount(self):
         item_count = ctypes.c_uint()
-        self.exceptionIfError(self.c_lib.NEPI_EDGE_LBConfigGetItemCount(self.c_ptr_self, ctypes.byref(item_count)))
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_LBConfigGetParamCount(self.c_ptr_self, ctypes.byref(item_count)))
         return item_count.value
+
+    def getParam(self, param_index):
+        id_type = ctypes.c_int()
+        id = NEPIEdgeLBParamId()
+        val_type = ctypes.c_int()
+        val = NEPIEdgeLBParamValue()
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_LBConfigGetParam(self.c_ptr_self, param_index, ctypes.byref(id_type), ctypes.byref(id), ctypes.byref(val_type), ctypes.byref(val)))
+
+        ret_id = None
+        if (id_type.value == NEPI_EDGE_LB_PARAM_ID_TYPE_STRING):
+            ret_id = id.id_string
+        elif (id_type.value == NEPI_EDGE_LB_PARAM_ID_TYPE_NUMBER):
+            ret_id = id.id_number
+
+        ret_val = None
+        if (val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_BOOL):
+            ret_val = val.bool_val
+        elif (val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_INT64):
+            ret_val = val.int64_val
+        elif (val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_UINT64):
+            ret_val = val.uint64_val
+        elif (val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_FLOAT):
+            ret_val = val.float_val
+        elif (val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_DOUBLE):
+            ret_val = val.double_val
+        elif (val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_STRING):
+            ret_val = val.string_val
+        elif(val_type.value == NEPI_EDGE_LB_PARAM_VALUE_TYPE_BYTES):
+            ret_val = val.bytes_val.val[:val.bytes_val.length]
+
+        return (ret_id, ret_val)
 
 class NEPIEdgeLBGeneral(NEPIEdgeBase):
 

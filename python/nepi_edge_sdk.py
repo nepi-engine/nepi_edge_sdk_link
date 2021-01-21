@@ -1,6 +1,4 @@
 import ctypes
-import pathlib
-import errno
 import os
 
 NEPI_EDGE_SDK_LIB_NAME = "libnepi_edge_sdk_shared.so"
@@ -58,7 +56,7 @@ class NEPIEdgeLBParamValue(ctypes.Union):
                 ("string_val", ctypes.c_char_p),
                 ("bytes_val", NEPIEdgeLBParamBytes)]
 
-class NEPIEdgeBase:
+class NEPIEdgeBase(object):
     c_lib = None
 
     def __init__(self):
@@ -80,7 +78,7 @@ class NEPIEdgeSDK(NEPIEdgeBase):
         self.c_lib.NEPI_EDGE_GetBotBaseFilePath.restype = ctypes.c_char_p
 
     def __init__(self):
-        super().__init__()
+        super(NEPIEdgeSDK, self).__init__()
         self.initFunctionPrototypes()
 
     def setBotBaseFilePath(self, base_path):
@@ -108,7 +106,7 @@ class NEPIEdgeLBStatus(NEPIEdgeBase):
         self.c_lib.NEPI_EDGE_LBExportData.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.c_uint]
 
     def __init__(self, timestamp_rfc3339):
-        super().__init__()
+        super(NEPIEdgeLBStatus, self).__init__()
         self.c_ptr_self = ctypes.c_void_p()
 
         self.initFunctionPrototypes()
@@ -163,7 +161,7 @@ class NEPIEdgeLBDataSnippet(NEPIEdgeBase):
         self.c_lib.NEPI_EDGE_LBDataSnippetSetDataFile.argtype = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_ubyte]
 
     def __init__(self, type, instance):
-        super().__init__()
+        super(NEPIEdgeLBDataSnippet, self).__init__()
         self.c_ptr_self = ctypes.c_void_p()
 
         self.initFunctionPrototypes()
@@ -213,7 +211,7 @@ class NEPIEdgeLBConfig(NEPIEdgeBase):
                                                           ctypes.POINTER(ctypes.c_int), ctypes.POINTER(NEPIEdgeLBParamValue)]
 
     def __init__(self):
-        super().__init__()
+        super(NEPIEdgeLBConfig, self).__init__()
         self.c_ptr_self = ctypes.c_void_p()
 
         self.initFunctionPrototypes()
@@ -302,7 +300,7 @@ class NEPIEdgeLBGeneral(NEPIEdgeBase):
                                                            ctypes.POINTER(ctypes.c_int), ctypes.POINTER(NEPIEdgeLBParamValue)]
 
     def __init__(self):
-        super().__init__()
+        super(NEPIEdgeLBGeneral, self).__init__()
         self.c_ptr_self = ctypes.c_void_p()
 
         self.initFunctionPrototypes()

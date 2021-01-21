@@ -1,4 +1,4 @@
-#nepi-edge-sdk
+# nepi-edge-sdk
 
 Description: SDK for Numurus NEPI Edge Devices
 
@@ -9,11 +9,11 @@ Example files show usage.
 This is a CMake project, so standard CMake build patterns apply
 
       mkdir build && cd build
-      cmake -DCMAKE_BUILD_TYPE=Release
+      cmake -DCMAKE_BUILD_TYPE=Release ..
       make
 
 The CMAKE_BUILD_TYPE defaults to _Debug_, so if optimization is desired, you must
-provide the -DCMAKE_BUILD_TYPE=Release as above.
+provide -DCMAKE_BUILD_TYPE=Release as above.
 
 ## Installing
 The CMake file checks for existence of a INSTALL_DESTINATION variable that Specifies
@@ -23,7 +23,7 @@ is to a local folder that matches the CMAKE_BUILD_TYPE value (default = _Debug_)
       cmake -DCMAKE_BUILD_TYPE=Release -DINSTALL_DESTINATION=/my/favorite/folder
       make install
 
-will build and install an optimized package to /my/favorite/folder
+will build and install an optimized package to _/my/favorite/folder_
 
 ## Using the library
 Examples are provided in the _bin_ folder of the installation.
@@ -37,7 +37,7 @@ install. This can be specified as a flag to the linker or provided through the
 _LD_LIBRARY_PATH_ environment variable. Alternatively, the dynamic library can be
 simply copied into the run folder of your application.
 
-To use the Python bindings, your Python interpreter must be able to find nepi_edge_sdk.py.
+To use the Python bindings, your Python interpreter must be able to find _nepi_edge_sdk.py_.
 You can update your PYTHONPATH environment variable or simply copy this file into the
 same folder as your main Python application. Additionally, your loader must be able to
 find the C dynamic library as described above.

@@ -50,8 +50,12 @@ target_link_libraries(nepi_sdk_example_session_c
 ## Install ##
 #############
 
+if(NOT DEFINED INSTALL_DESTINATION)
+  message(WARNING "No INSTALL_DESTINATION specified... setting to ${CMAKE_SOURCE_DIR}/${CMAKE_BUILD_TYPE}")
+  set(INSTALL_DESTINATION ${CMAKE_SOURCE_DIR}/${CMAKE_BUILD_TYPE})
+endif()
+message(STATUS "Install Folder: ${INSTALL_DESTINATION}")
 ## Declare the top-level directory for the install
-set(INSTALL_DESTINATION ${CMAKE_SOURCE_DIR}/${CMAKE_BUILD_TYPE})
 
 ## Mark executables and/or libraries for installation
 install(TARGETS ${PROJECT_NAME}_static ${PROJECT_NAME}_shared nepi_sdk_example_session_c

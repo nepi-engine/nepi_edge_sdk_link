@@ -365,7 +365,7 @@ class NEPIEdgeLBGeneral(NEPIEdgeBase):
         id = NEPIEdgeLBParamId()
         val_type = ctypes.c_int()
         val = NEPIEdgeLBParamValue()
-        self.exceptionIfError(self.c_lib.NEPI_EDGE_LBConfigGetParam(self.c_ptr_self, ctypes.byref(id_type), ctypes.byref(id), ctypes.byref(val_type), ctypes.byref(val)))
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_LBGeneralGetParam(self.c_ptr_self, ctypes.byref(id_type), ctypes.byref(id), ctypes.byref(val_type), ctypes.byref(val)))
 
         ret_id = None
         if (id_type.value == NEPI_EDGE_LB_PARAM_ID_TYPE_STRING):

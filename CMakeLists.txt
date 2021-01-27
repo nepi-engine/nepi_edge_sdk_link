@@ -15,6 +15,7 @@ message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 set(libc_src
   impl_c/nepi_edge_sdk_impl.c
   impl_c/nepi_lb_interface_impl.c
+  impl_c/nepi_hb_interface_impl.c
   impl_c/frozen/frozen.c
 )
 

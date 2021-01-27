@@ -77,6 +77,8 @@ class NEPIEdgeSDK(NEPIEdgeBase):
 
         self.c_lib.NEPI_EDGE_GetBotBaseFilePath.restype = ctypes.c_char_p
 
+        self.c_lib.NEPI_EDGE_HBLinkDataFolder.argtypes = [ctypes.c_char_p]
+
     def __init__(self):
         super(NEPIEdgeSDK, self).__init__()
         self.initFunctionPrototypes()
@@ -86,6 +88,9 @@ class NEPIEdgeSDK(NEPIEdgeBase):
 
     def getBotBaseFilePath(self):
         return self.c_lib.NEPI_EDGE_GetBotBaseFilePath().decode("utf-8")
+
+    def linkHBDataFolder(self, data_folder_path):
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_HBLinkDataFolder(data_folder_path.encode('utf-8')))
 
 class NEPIEdgeLBStatus(NEPIEdgeBase):
 

@@ -1,7 +1,11 @@
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "nepi_edge_sdk.h"
 #include "nepi_edge_lb_interface.h"
+#include "nepi_edge_hb_interface.h"
 
 /* Helper for config and general message params */
 void printParam(NEPI_EDGE_LB_Param_Id_Type_t id_type, NEPI_EDGE_LB_Param_Id_t id,
@@ -149,6 +153,27 @@ int main(int argc, char **argv)
     printf("\tGeneral-DT Msg %lu Param:\n", i);
     printParam(id_type, id, value_type, value);
   }
+
+  /* Now some HB testing. Setup data export. */
+  /* First, create a temporary/testing data folder */
+  struct stat st = {0};
+  char cwd[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
+  char test_directory[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
+  char test_file[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
+  getcwd(cwd, sizeof(cwd));
+  snprintf(test_directory, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/testing_data", cwd);
+  snprintf(test_file, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/testfile.txt", test_directory);
+
+  if (-1 == stat(test_directory, &st))
+  {
+    mkdir(test_directory, 0777);
+  }
+  FILE *f = fopen(test_file, "w");
+  fprintf(f, "This is a nepi_sdk_example_session testfile -- you can delete it and the parent directory");
+  fclose(f);
+  /* Now link the test directory to NEPI for HB data export */
+  NEPI_EDGE_HBLinkDataFolder(test_directory);
+  printf("Linked HB Data Offload folder to %s\n", test_directory);
 
   /* Always destroy what you create */
   NEPI_EDGE_LBStatusDestroy(status);

@@ -34,9 +34,22 @@ static void mkdir_recursive(const char *dir, mode_t mode)
 NEPI_EDGE_RET_t NEPI_EDGE_SDKCheckPath(const char* path)
 {
   // First, check that the path exists, and try to create it if not
-  if (-1 == access(path, F_OK))
+  if (-1 == access(path, F_OK)) // Not a regular file
   {
-    mkdir_recursive(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    struct stat sb;
+    if (-1 == lstat(path, &sb)) // Not a symlink either (use lstat because it reports on the link, not the file it points to)
+    {
+      mkdir_recursive(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
+    else if (S_IFLNK == (sb.st_mode & S_IFMT)) // must be a broken link
+    {
+      // Try to delete the broken link and create a new one
+      if (0 != remove(path))
+      {
+        return NEPI_EDGE_RET_FILE_DELETE_ERROR;
+      }
+      mkdir_recursive(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
   }
 
   // And ensure we have proper permissions
@@ -73,13 +86,13 @@ NEPI_EDGE_RET_t NEPI_EDGE_SetBotBaseFilePath(const char* path)
   ret = NEPI_EDGE_SDKCheckPath(tmp_path);
   if (ret != NEPI_EDGE_RET_OK) return ret;
 
-  // hb/clone-do
-  snprintf(tmp_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s", path, NEPI_EDGE_HB_CLONE_DO_FOLDER_PATH);
+  // hb/do/data
+  snprintf(tmp_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s", path, NEPI_EDGE_HB_DO_DATA_FOLDER_PATH);
   ret = NEPI_EDGE_SDKCheckPath(tmp_path);
   if (ret != NEPI_EDGE_RET_OK) return ret;
 
-  // hb/clone-dt
-  snprintf(tmp_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s", path, NEPI_EDGE_HB_CLONE_DT_FOLDER_PATH);
+  // hb/dt
+  snprintf(tmp_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s", path, NEPI_EDGE_HB_DT_FOLDER_PATH);
   ret = NEPI_EDGE_SDKCheckPath(tmp_path);
   if (ret != NEPI_EDGE_RET_OK) return ret;
 

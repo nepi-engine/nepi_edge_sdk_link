@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 from nepi_edge_sdk import *
 
 # Helper for config and general message params
@@ -80,3 +81,15 @@ if __name__ == "__main__":
         print("General-DT Msg " + str(i))
         (param_id, param_val) = general_dt_msg.getParam()
         printParam(param_id, param_val)
+
+    # Now some HB testing. Setup data export.
+    # First, create a temporary/testing data folder
+    test_directory = os.getcwd() + '/testing_data'
+    if not os.path.exists(test_directory):
+        os.makedirs(test_directory)
+    with open(test_directory + '/testfile.txt', 'w') as f:
+        f.write('This is a nepi_sdk_example_session testfile -- you can delete it and the parent directory')
+
+    # Now link the test directory to NEPI for HB data export
+    sdk.linkHBDataFolder(test_directory)
+    print("Linked HB Data Offload folder to " + test_directory)

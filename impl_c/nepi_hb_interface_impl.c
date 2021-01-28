@@ -31,4 +31,6 @@ NEPI_EDGE_RET_t NEPI_EDGE_HBLinkDataFolder(const char* data_folder_path)
   {
       return NEPI_EDGE_RET_SYMLINK_CREATE_ERROR;
   }
+
+  return NEPI_EDGE_RET_OK;
 }

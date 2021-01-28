@@ -8,12 +8,10 @@ def printParam(param_id, param_val):
     id_string = None
     val_string = None
 
-    if (isinstance(param_id, bytes)):
+    if (isinstance(param_id, bytes) or isinstance(param_id, bytearray)):
         id_string = param_id.decode('utf-8')
-    elif (isinstance(param_id, int)):
-        id_string = str(param_id)
     else:
-        id_string = "???"
+        id_string = str(param_id)
 
     print("\t\tID (" + str(type(param_id)) + "): " + id_string)
     print("\t\tVal (" + str(type(param_val)) + "): " + str(param_val))
@@ -31,7 +29,7 @@ if __name__ == "__main__":
     status.setOptionalFields(navsat_fix_time_rfc3339="2020-08-21T09:49:00.0-04:00", latitude_deg=47.6062, longitude_deg=-122.3321,
                              heading_ref=NEPI_EDGE_HEADING_REF_MAG_NORTH, heading_deg=45.0,
                              roll_angle_deg=5.5, pitch_angle_deg=-17.6, temperature_c=40.0,
-                             power_state_percentage=94.2, device_status=bytes([1,2,3,4,5]))
+                             power_state_percentage=94.2, device_status=bytearray([1,2,3,4,5]))
 
     # Next create a couple of data snippets
     data_snippet_1 = NEPIEdgeLBDataSnippet(b'cls', 0)
@@ -59,7 +57,7 @@ if __name__ == "__main__":
     # Let's do another general message
     general_2 = NEPIEdgeLBGeneral()
     # Populate this one with a numerical key and an arbitrary byte array for its value
-    general_2.setPayload(12345, bytes([0xDE, 0xAD, 0xBE, 0xEF]))
+    general_2.setPayload(12345, bytearray([0xDE, 0xAD, 0xBE, 0xEF]))
     # And export it to a file
     general_2.export()
     print("Created another DO General file")

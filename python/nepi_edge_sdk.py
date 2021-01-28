@@ -339,7 +339,7 @@ class NEPIEdgeLBGeneral(NEPIEdgeBase):
                 self.exceptionIfError(self.c_lib.NEPI_EDGE_LBGeneralSetPayloadIntDouble(self.c_ptr_self, id, payload))
             elif (isinstance(payload, str)):
                 self.exceptionIfError(self.c_lib.NEPI_EDGE_LBGeneralSetPayloadIntStr(self.c_ptr_self, id, payload.encode('utf-8')))
-            elif (isinstance(payload, bytes)):
+            elif (isinstance(payload, bytearray)):
                 payload_array = (ctypes.c_byte * len(payload))(*payload)
                 self.exceptionIfError(self.c_lib.NEPI_EDGE_LBGeneralSetPayloadIntBytes(self.c_ptr_self, id, payload_array, len(payload)))
             else:

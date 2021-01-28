@@ -329,7 +329,7 @@ class NEPIEdgeLBGeneral(NEPIEdgeBase):
                 payload_array = (ctypes.c_byte * len(payload))(*payload)
                 self.exceptionIfError(self.c_lib.NEPI_EDGE_LBGeneralSetPayloadStrBytes(self.c_ptr_self, id.encode('utf-8'), payload_array, len(payload)))
             else:
-                raise NEPIEdgeSDKError(NEPI_EDGE_RET_BAD_PARAM, "Invalid type for payload parameter (" + type(payload) + ")")
+                raise NEPIEdgeSDKError(NEPI_EDGE_RET_BAD_PARAM, "Invalid type for payload parameter (" + str(type(payload)) + ")")
         elif (isinstance(id, int)):
             if (isinstance(payload, bool)):
                 self.exceptionIfError(self.c_lib.NEPI_EDGE_LBGeneralSetPayloadIntBool(self.c_ptr_self, id, payload))
@@ -343,9 +343,9 @@ class NEPIEdgeLBGeneral(NEPIEdgeBase):
                 payload_array = (ctypes.c_byte * len(payload))(*payload)
                 self.exceptionIfError(self.c_lib.NEPI_EDGE_LBGeneralSetPayloadIntBytes(self.c_ptr_self, id, payload_array, len(payload)))
             else:
-                raise NEPIEdgeSDKError(NEPI_EDGE_RET_BAD_PARAM, "Invalid type for payload parameter (" + type(payload) + ")")
+                raise NEPIEdgeSDKError(NEPI_EDGE_RET_BAD_PARAM, "Invalid type for payload parameter (" + str(type(payload)) + ")")
         else:
-            raise NEPIEdgeSDKError(NEPI_EDGE_RET_BAD_PARAM, "Invalid type for id parameter (" + type(id) + ")")
+            raise NEPIEdgeSDKError(NEPI_EDGE_RET_BAD_PARAM, "Invalid type for id parameter (" + str(type(id)) + ")")
 
     def export(self):
         self.exceptionIfError(self.c_lib.NEPI_EDGE_LBExportGeneral(self.c_ptr_self))

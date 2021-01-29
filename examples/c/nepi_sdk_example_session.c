@@ -175,6 +175,14 @@ int main(int argc, char **argv)
   NEPI_EDGE_HBLinkDataFolder(test_directory);
   printf("Linked HB Data Offload folder to %s\n", test_directory);
 
+  /* Here is how you actually launch the Bot and check the status afterwards */
+  // TODO: Launch bot and wait for it to terminate
+
+  NEPI_EDGE_Exec_Status_t exec_status;
+  NEPI_EDGE_ExecStatusCreate(&exec_status);
+  NEPI_EDGE_ImportExecStatus(exec_status);
+  printf("Imported the BOT Execution Status\n");
+
   /* Always destroy what you create */
   NEPI_EDGE_LBStatusDestroy(status);
   NEPI_EDGE_LBDataSnippetDestroy(data_snippets[0]);
@@ -183,6 +191,7 @@ int main(int argc, char **argv)
   NEPI_EDGE_LBGeneralDestroy(general_2);
   NEPI_EDGE_LBConfigDestroyArray(config_array, config_count); // ImportAll does creation under the hood
   NEPI_EDGE_LBGeneralDestroyArray(general_dt_array, general_dt_count); // ImportAll does creation under the hood
+  NEPI_EDGE_ExecStatusDestroy(exec_status);
 
   return 0;
 }

@@ -12,17 +12,6 @@
 
 #include "frozen/frozen.h"
 
-// In case we want to provide arena allocator, etc. someday, don't call
-// malloc() and free() directly
-#define NEPI_EDGE_MALLOC(x) malloc((x))
-#define NEPI_EDGE_FREE(x) free((x))
-
-#define VALIDATE_OPAQUE_TYPE(x,t,s) \
-  if (NULL == (x)) return NEPI_EDGE_RET_UNINIT_OBJ;\
-  struct s *p = (struct s*)(x);\
-  if (p->opaque_helper.msg_id != t) return NEPI_EDGE_RET_WRONG_OBJ_TYPE;
-
-
 #define VALIDATE_NUMERICAL_RANGE(x,l,u) \
   if ((x) < (l) || (x) > (u)) return NEPI_EDGE_RET_ARG_OUT_OF_RANGE;
 

@@ -178,10 +178,106 @@ int main(int argc, char **argv)
   /* Here is how you actually launch the Bot and check the status afterwards */
   // TODO: Launch bot and wait for it to terminate
 
+  /* Now import the execution status to get information about how it went */
   NEPI_EDGE_Exec_Status_t exec_status;
   NEPI_EDGE_ExecStatusCreate(&exec_status);
   NEPI_EDGE_ImportExecStatus(exec_status);
   printf("Imported the BOT Execution Status\n");
+
+  size_t lb_counts;
+  size_t hb_counts;
+  NEPI_EDGE_ExecStatusGetCounts(exec_status, &lb_counts, &hb_counts);
+  for (size_t i = 0; i < lb_counts; ++i)
+  {
+    printf("\tLB Connection Status %zu:\n", i);
+    char *comms_type;
+    NEPI_EDGE_ExecStatusGetLBCommsType(exec_status, i, &comms_type);
+    printf("\t\tComms Type: %s\n", comms_type);
+
+    NEPI_EDGE_COMMS_STATUS_t comms_status;
+    NEPI_EDGE_ExecStatusGetLBCommsStatus(exec_status, i, &comms_status);
+    printf("\t\tComms Status: %d\n", comms_status);
+
+    char *start_time;
+    char *stop_time;
+    NEPI_EDGE_ExecStatusGetLBCommsTimestamps(exec_status, i, &start_time, &stop_time);
+    printf("\t\tStart Time: %s\n", start_time);
+    printf("\t\tStop Time: %s\n", stop_time);
+
+    size_t warning_count;
+    size_t error_count;
+    NEPI_EDGE_ExecStatusGetLBCommsGetWarnErrCount(exec_status, i, &warning_count, &error_count);
+    printf("\t\tWarnings:\n");
+    for (size_t j = 0; j < warning_count; ++j)
+    {
+      char *warning_string;
+      NEPI_EDGE_ExecStatusGetLBCommsGetWarning(exec_status, i, j, &warning_string);
+      printf("\t\t  %zu. %s\n",j, warning_string);
+    }
+
+    printf("\t\tErrors:\n");
+    for (size_t j = 0; j < error_count; ++j)
+    {
+      char *error_string;
+      NEPI_EDGE_ExecStatusGetLBCommsGetError(exec_status, i, j, &error_string);
+      printf("\t\t  %zu. %s\n", j, error_string);
+    }
+
+    size_t msgs_sent;
+    size_t pkts_sent;
+    size_t msgs_rcvd;
+    NEPI_EDGE_ExecStatusGetLBCommsStatistics(exec_status, i, &msgs_sent, &pkts_sent, &msgs_rcvd);
+    printf("\t\tMessages Sent: %zu\n", msgs_sent);
+    printf("\t\tPackets Sent: %zu\n", pkts_sent);
+    printf("\t\tMessages Received: %zu\n", msgs_rcvd);
+  }
+
+  for (size_t i = 0; i < hb_counts; ++i)
+  {
+    printf("\tHB Connection Status %zu:\n", i);
+    char *comms_type;
+    NEPI_EDGE_ExecStatusGetHBCommsType(exec_status, i, &comms_type);
+    printf("\t\tComms Type: %s\n", comms_type);
+
+    NEPI_EDGE_COMMS_STATUS_t comms_status;
+    NEPI_EDGE_ExecStatusGetHBCommsStatus(exec_status, i, &comms_status);
+    printf("\t\tComms Status: %d\n", comms_status);
+
+    char *start_time;
+    char *stop_time;
+    NEPI_EDGE_ExecStatusGetHBCommsTimestamps(exec_status, i, &start_time, &stop_time);
+    printf("\t\tStart Time: %s\n", start_time);
+    printf("\t\tStop Time: %s\n", stop_time);
+
+    size_t warning_count;
+    size_t error_count;
+    NEPI_EDGE_ExecStatusGetHBCommsGetWarnErrCount(exec_status, i, &warning_count, &error_count);
+    printf("\t\tWarnings:\n");
+    for (size_t j = 0; j < warning_count; ++j)
+    {
+      char *warning_string;
+      NEPI_EDGE_ExecStatusGetHBCommsGetWarning(exec_status, i, j, &warning_string);
+      printf("\t\t  %zu. %s\n",j, warning_string);
+    }
+
+    printf("\t\tErrors:\n");
+    for (size_t j = 0; j < error_count; ++j)
+    {
+      char *error_string;
+      NEPI_EDGE_ExecStatusGetHBCommsGetError(exec_status, i, j, &error_string);
+      printf("\t\t  %zu. %s\n", j, error_string);
+    }
+
+    NEPI_EDGE_HB_DIRECTION_t direction;
+    NEPI_EDGE_ExecStatusGetHBCommsDirection(exec_status, i, &direction);
+    printf("\t\tDirection: %d\n", direction);
+
+    size_t datasent_kB;
+    size_t datareceived_kB;
+    NEPI_EDGE_ExecStatusGetHBCommsStatistics(exec_status, i, &datasent_kB, &datareceived_kB);
+    printf("\t\tData Sent: %zukB\n", datasent_kB);
+    printf("\t\tData Received: %zukB\n", datareceived_kB);
+  }
 
   /* Always destroy what you create */
   NEPI_EDGE_LBStatusDestroy(status);

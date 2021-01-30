@@ -83,20 +83,13 @@ typedef enum NEPI_EDGE_LB_Connection_Status_Fields_Bitmask
   NEPI_EDGE_LB_Connection_Status_Fields_Messages_Received = (1u << 8)
 } NEPI_EDGE_LB_Connection_Status_Fields_Bitmask_t;
 
-typedef enum NEPI_EDGE_HB_Connection_Dtype
-{
-  NEPI_EDGE_HB_Connection_Dtype_DO,
-  NEPI_EDGE_HB_Connection_Dtype_DT,
-  NEPI_EDGE_HB_Connection_Dtype_Unknown
-} NEPI_EDGE_HB_Connection_Dtype_t;
-
 struct NEPI_EDGE_HB_Connection_Status
 {
   struct NEPI_EDGE_Connection_Status_Common_Hdr hdr;
 
-  uint32_t datasent_kb;
-  uint32_t datareceived_kb;
-  NEPI_EDGE_HB_Connection_Dtype_t dtype;
+  uint32_t datasent_kB;
+  uint32_t datareceived_kB;
+  NEPI_EDGE_HB_DIRECTION_t direction;
 
   struct NEPI_EDGE_HB_Connection_Status *next; // Linked list helper
 };

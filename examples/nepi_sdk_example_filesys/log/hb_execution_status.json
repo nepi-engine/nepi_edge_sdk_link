@@ -6,8 +6,8 @@
          "dtype":"do",
          "timestart":"2021-01-20T01:31:12.467113+00:00",
          "timestop":"2021-01-20T01:31:42.325010+00:00",
-         "datasent_kb":13701,
-         "datarecv_kb":1155,
+         "datasent_kB":13701,
+         "datarecv_kB":1155,
          "numdirs":5,
          "numfiles":20,
          "errors":[
@@ -23,8 +23,8 @@
          "dtype":"dt",
          "timestart":"2021-01-20T01:31:12.467113+00:00",
          "timestop":"2021-01-20T01:31:42.325010+00:00",
-         "datasent_kb":13701,
-         "datarecv_kb":1155,
+         "datasent_kB":13701,
+         "datarecv_kB":1155,
          "numdirs":5,
          "numfiles":20,
          "errors":[

@@ -13,6 +13,7 @@
 
 NEPI_EDGE_RET_t NEPI_EDGE_SetBotBaseFilePath(const char* path);
 const char* NEPI_EDGE_GetBotBaseFilePath(void);
+const char* NEPI_EDGE_GetBotNUID(void);
 
 /* **************** Exec Status API **************** */
 typedef enum NEPI_EDGE_COMMS_STATUS

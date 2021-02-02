@@ -7,6 +7,9 @@
 
 #include "frozen/frozen.h"
 
+#define NEPI_EDGE_DEVNUID_FILE_PATH     "devinfo/devnuid.txt"
+#define NEPI_EDGE_NUID_STRLENGTH    16
+
 #define EXTRACT_LB_CONNECTION_STATUS(x,t,s,i) \
   VALIDATE_OPAQUE_TYPE(x,t,s) \
   struct NEPI_EDGE_LB_Connection_Status *lb_conn_status; \
@@ -20,6 +23,7 @@
   if (ret != NEPI_EDGE_RET_OK) return ret;
 
 static char nepi_edge_bot_base_file_path[NEPI_EDGE_MAX_FILE_PATH_LENGTH] = {'\0'};
+static char nepi_edge_bot_nuid[NEPI_EDGE_NUID_STRLENGTH] = {'\0'};
 
 static void mkdir_recursive(const char *dir, mode_t mode)
 {
@@ -110,6 +114,18 @@ NEPI_EDGE_RET_t NEPI_EDGE_SetBotBaseFilePath(const char* path)
   ret = NEPI_EDGE_SDKCheckPath(tmp_path);
   if (ret != NEPI_EDGE_RET_OK) return ret;
 
+  // Get the NUID
+  snprintf(tmp_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s", path, NEPI_EDGE_DEVNUID_FILE_PATH);
+  FILE *nuid_file = fopen(tmp_path, "r");
+  if ((NULL == tmp_path) ||
+      (NULL == fgets(nepi_edge_bot_nuid, NEPI_EDGE_NUID_STRLENGTH, nuid_file)))
+  {
+    return NEPI_EDGE_RET_INVALID_BOT_PATH;
+  }
+  // Chomp the newline if there is one
+  nepi_edge_bot_nuid[strcspn(nepi_edge_bot_nuid, "\n")] = '\0';
+  fclose(nuid_file);
+
   // Everything checks out, so update the global variable and return success
   strncpy(nepi_edge_bot_base_file_path, path, NEPI_EDGE_MAX_FILE_PATH_LENGTH);
   return NEPI_EDGE_RET_OK;
@@ -118,6 +134,11 @@ NEPI_EDGE_RET_t NEPI_EDGE_SetBotBaseFilePath(const char* path)
 const char* NEPI_EDGE_GetBotBaseFilePath(void)
 {
   return nepi_edge_bot_base_file_path;
+}
+
+const char* NEPI_EDGE_GetBotNUID(void)
+{
+  return nepi_edge_bot_nuid;
 }
 
 NEPI_EDGE_RET_t NEPI_EDGE_ExecStatusCreate(NEPI_EDGE_Exec_Status_t *exec_status)

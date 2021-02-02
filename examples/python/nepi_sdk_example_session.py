@@ -27,6 +27,10 @@ if __name__ == "__main__":
     # First, set the the NEPI-EDGE filesys interface path.
     sdk.setBotBaseFilePath("./nepi_sdk_example_filesys")
 
+    # Now we can report the NUID for this instance
+    nuid = sdk.getBotNUID();
+    print("Detected NUID: " + nuid);
+
     # Now create the status
     status = NEPIEdgeLBStatus("2020-09-03 17:14:25.2-04:00")
     # Populate some of the optional fields

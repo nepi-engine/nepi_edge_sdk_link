@@ -53,6 +53,10 @@ int main(int argc, char **argv)
   /* First, set the the NEPI-EDGE filesys interface path */
   NEPI_EDGE_SetBotBaseFilePath("./nepi_sdk_example_filesys");
 
+  /* Now we can report the NUID for this instance */
+  const char* nuid = NEPI_EDGE_GetBotNUID();
+  printf("Detected NUID: %s\n", nuid);
+
   /* Now create the status */
   NEPI_EDGE_LB_Status_t status;
   NEPI_EDGE_LBStatusCreate(&status, "2020-09-03 17:14:25.2-04:00"); // Timestamp is required; hence included in Create method

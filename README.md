@@ -32,6 +32,15 @@ By default both a dynamic and a static C library are built and included in the
 _lib_ folder of the install.
 
 ### Runtime Dependencies
+As a convenience, the runtime dependencies can be loaded into your environment
+via the _setup.bash_ file in the root of the installation folder.
+
+      source /my/installation/folder/setup.bash
+
+will prepare your shell to run applications that leverage either the C or the Python
+version of the SDK.
+
+Here are the details:
 To use the C dynamic library, the loader search path must include the _lib_ folder of this
 install. This can be specified as a flag to the linker or provided through the
 _LD_LIBRARY_PATH_ environment variable. Alternatively, the dynamic library can be

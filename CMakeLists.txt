@@ -88,3 +88,14 @@ install(DIRECTORY include
 install(DIRECTORY examples/nepi_sdk_example_filesys examples/example_files
   DESTINATION ${INSTALL_DESTINATION}/bin
 )
+
+# Create the setup.bash to set env. variables properly
+install(CODE
+        "file(WRITE ${INSTALL_DESTINATION}/setup.bash \"# Environment setup file for nepi-edge-sdk\n\")"
+)
+install(CODE
+        "file(APPEND ${INSTALL_DESTINATION}/setup.bash \"export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${INSTALL_DESTINATION}/lib\n\")"
+)
+install(CODE
+        "file(APPEND ${INSTALL_DESTINATION}/setup.bash \"export PYTHONPATH=${INSTALL_DESTINATION}/lib:\$PYTHONPATH\n\")"
+)

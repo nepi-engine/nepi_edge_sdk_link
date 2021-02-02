@@ -578,6 +578,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_ExecStatusGetCounts(NEPI_EDGE_Exec_Status_t exec_statu
   }
 
   struct NEPI_EDGE_HB_Connection_Status *hb_conn_status = p->hb_conn_status;
+  *hb_counts = 0;
   while (hb_conn_status != NULL)
   {
     ++(*hb_counts);

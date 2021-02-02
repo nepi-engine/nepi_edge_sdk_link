@@ -11,8 +11,8 @@
       {
          "comms_type":"lb_ip",
          "status":"success",
-         "timestart":"2021-01-20T01:31:12.467113+00:00",
-         "timestop":"2021-01-20T01:31:42.325010+00:00",
+         "timestart":"2021-01-20T01:31:12.467113",
+         "timestop":"2021-01-20T01:31:42.325010",
          "msgsent":10,
          "pktsent":245,
          "statsent":5,

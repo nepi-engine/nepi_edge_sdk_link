@@ -76,17 +76,13 @@ install(FILES python/nepi_edge_sdk.py
   DESTINATION ${INSTALL_DESTINATION}/lib
 )
 
-## Add the environment setup script the bin folder
-install(FILES examples/examples_env.sh
-  DESTINATION ${INSTALL_DESTINATION}/bin
-)
-
 install(DIRECTORY include
   DESTINATION ${INSTALL_DESTINATION}/include
 )
 
 install(DIRECTORY examples/nepi_sdk_example_filesys examples/example_files
   DESTINATION ${INSTALL_DESTINATION}/bin
+  USE_SOURCE_PERMISSIONS
 )
 
 # Create the setup.bash to set env. variables properly

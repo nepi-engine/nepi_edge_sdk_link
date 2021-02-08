@@ -77,7 +77,7 @@ install(FILES python/nepi_edge_sdk.py
 )
 
 install(DIRECTORY include
-  DESTINATION ${INSTALL_DESTINATION}/include
+  DESTINATION ${INSTALL_DESTINATION}
 )
 
 install(DIRECTORY examples/nepi_sdk_example_filesys examples/example_files

@@ -148,7 +148,14 @@ const char* NEPI_EDGE_GetBotNUID(void)
 
 NEPI_EDGE_RET_t NEPI_EDGE_StartBot(uint8_t run_lb, uint32_t lb_timeout_s, uint8_t run_hb, uint32_t hb_timeout_s)
 {
-  if (-1 != bot_pid)
+  uint8_t bot_already_running = 0;
+  const NEPI_EDGE_RET_t check_bot_running_ret = NEPI_EDGE_CheckBotRunning(&bot_already_running);
+  if (NEPI_EDGE_RET_OK != check_bot_running_ret)
+  {
+    return check_bot_running_ret;
+  }
+
+  if (1 == bot_already_running)
   {
     return NEPI_EDGE_RET_BOT_ALREADY_RUNNING;
   }
@@ -215,9 +222,11 @@ NEPI_EDGE_RET_t NEPI_EDGE_CheckBotRunning(uint8_t *bot_running)
     else // Must have terminated
     {
       *bot_running = 0;
+      // This is the only appropriate place to reset the bot_pid to the not-running sentinel value
+      bot_pid = -1;
     }
-    return NEPI_EDGE_RET_OK;
   }
+  return NEPI_EDGE_RET_OK;
 }
 
 NEPI_EDGE_RET_t NEPI_EDGE_StopBot(uint8_t force_kill)

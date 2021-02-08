@@ -122,6 +122,9 @@ class NEPIEdgeSDK(NEPIEdgeBase):
     def linkHBDataFolder(self, data_folder_path):
         self.exceptionIfError(self.c_lib.NEPI_EDGE_HBLinkDataFolder(data_folder_path.encode('utf-8')))
 
+    def unlinkHBDataFolder(self):
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_HBUnlinkDataFolder())
+
 class NEPIEdgeLBStatus(NEPIEdgeBase):
 
     def initFunctionPrototypes(self):

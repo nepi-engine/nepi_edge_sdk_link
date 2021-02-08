@@ -126,6 +126,10 @@ if __name__ == "__main__":
             print('Killing BOT forecefully')
             sdk.stopBot(1)
 
+    # Optional -- you can unlink the HB Data Folder if you want, or just leave it linked
+    sdk.unlinkHBDataFolder()
+    print('Unlinked HB Data Folder')
+
     # Now import the execution status to get information about how it went
     exec_status = NEPIEdgeExecStatus()
     (lb_statuses, hb_statuses) = exec_status.importStatus()

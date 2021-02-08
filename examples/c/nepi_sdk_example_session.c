@@ -212,6 +212,10 @@ int main(int argc, char **argv)
   }
   printf("\n");
 
+  /* Optional -- you can unlink the HB Data Folder if you want, or just leave it linked */
+  NEPI_EDGE_HBUnlinkDataFolder();
+  printf("Unlinked HB Data Folder\n");
+
   /* Now import the execution status to get information about how it went */
   NEPI_EDGE_Exec_Status_t exec_status;
   NEPI_EDGE_ExecStatusCreate(&exec_status);

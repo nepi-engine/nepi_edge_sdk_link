@@ -77,6 +77,7 @@ class NEPIEdgeBase(object):
         if (err_val == NEPI_EDGE_RET_OK):
             pass
         else:
+            print('NEPI Edge SDK Error Occurred: Error Value = ' + str(err_val))
             raise NEPIEdgeSDKError(err_val, "NEPI Edge SDK Error Occurred")
 
 class NEPIEdgeSDK(NEPIEdgeBase):

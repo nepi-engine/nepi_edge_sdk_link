@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo "NEPI-BOT Simulator: Starting up"
+echo "  Run LB: ${RUN_LB_LINK} (${LB_PROC_TIMEOUT} secs)"
+echo "  Run HB: ${RUN_HB_LINK} (${HB_PROC_TIMEOUT} secs)"
+
+echo "  (Note: No provisions to kill NEPI-BOT Simulator Gracefully)"
+
+rm -f ./nepi_sdk_example_filesys/log/lb_execution_status.json
+rm -f ./nepi_sdk_example_filesys/log/hb_execution_status.json
+
+sleep $LB_PROC_TIMEOUT
+
+echo "NEPI-BOT Simulator: Finishing Cleanly"
+echo "  Creating HB and LB exec. status files in the log folder"
+cp ./example_files/lb_execution_status.json ./nepi_sdk_example_filesys/log/
+cp ./example_files/lb_execution_status.json ./nepi_sdk_example_filesys/log/

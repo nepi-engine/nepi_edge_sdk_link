@@ -85,6 +85,11 @@ class NEPIEdgeSDK(NEPIEdgeBase):
         self.c_lib.NEPI_EDGE_SetBotBaseFilePath.argtypes = [ctypes.c_char_p]
         self.c_lib.NEPI_EDGE_GetBotBaseFilePath.restype = ctypes.c_char_p
         self.c_lib.NEPI_EDGE_GetBotNUID.restype = ctypes.c_char_p
+
+        self.c_lib.NEPI_EDGE_StartBot.argtypes = [ctypes.c_ubyte, ctypes.c_uint32, ctypes.c_ubyte, ctypes.c_uint32]
+        self.c_lib.NEPI_EDGE_CheckBotRunning.argtypes = [ctypes.POINTER(ctypes.c_ubyte)]
+        self.c_lib.NEPI_EDGE_StopBot.argtypes = [ctypes.c_ubyte]
+
         self.c_lib.NEPI_EDGE_HBLinkDataFolder.argtypes = [ctypes.c_char_p]
 
     def __init__(self):
@@ -99,6 +104,20 @@ class NEPIEdgeSDK(NEPIEdgeBase):
 
     def getBotNUID(self):
         return self.c_lib.NEPI_EDGE_GetBotNUID().decode("utf-8")
+
+    def startBot(self, run_lb, lb_timeout_s, run_hb, hb_timeout_s):
+        run_lb_ubyte = 1 if run_lb is True else 0
+        run_hb_ubyte = 1 if run_hb is True else 0
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_StartBot(run_lb_ubyte, lb_timeout_s, run_hb_ubyte, hb_timeout_s))
+
+    def checkBotRunning(self):
+        running = ctypes.c_ubyte()
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_CheckBotRunning(ctypes.byref(running)))
+        ret_val = True if running.value == 1 else False
+        return ret_val
+
+    def stopBot(self, force_kill):
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_StopBot(force_kill))
 
     def linkHBDataFolder(self, data_folder_path):
         self.exceptionIfError(self.c_lib.NEPI_EDGE_HBLinkDataFolder(data_folder_path.encode('utf-8')))

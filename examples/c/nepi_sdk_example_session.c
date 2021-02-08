@@ -179,8 +179,38 @@ int main(int argc, char **argv)
   NEPI_EDGE_HBLinkDataFolder(test_directory);
   printf("Linked HB Data Offload folder to %s\n", test_directory);
 
-  /* Here is how you actually launch the Bot and check the status afterwards */
-  // TODO: Launch bot and wait for it to terminate
+  /* Now launch the Bot process and wait for it to terminate */
+  const uint8_t run_lb = 1;
+  const uint32_t lb_timeout_s = 30;
+  const uint8_t run_hb = 1;
+  const uint8_t hb_timeout_s = 30;
+  printf("Starting BOT\n");
+  printf("\tLB is %s, LB Timeout is %u seconds\n", (run_lb != 0)? "Enabled" : "Disabled", lb_timeout_s);
+  printf("\tHB is %s, HB Timeout is %u seconds\n", (run_lb != 0)? "Enabled" : "Disabled", hb_timeout_s);
+  NEPI_EDGE_StartBot(run_lb, lb_timeout_s, run_hb, hb_timeout_s);
+
+  uint8_t bot_still_running = 1;
+  int bot_kill_timer = 0; // seconds
+  while (bot_still_running)
+  {
+    ++bot_kill_timer;
+    printf("%d\n", bot_kill_timer);
+    sleep(1);
+    NEPI_EDGE_CheckBotRunning(&bot_still_running);
+
+    /* Here is how to kill BOT before it terminates on its own */
+    if (10 == bot_kill_timer)
+    {
+      printf("Signaling BOT to shut down gracefully\n");
+      NEPI_EDGE_StopBot(0); // Soft kill
+    }
+    else if (15 == bot_kill_timer)
+    {
+      printf("Killing BOT forcefully\n");
+      NEPI_EDGE_StopBot(1); // Hard kill
+    }
+  }
+  printf("\n");
 
   /* Now import the execution status to get information about how it went */
   NEPI_EDGE_Exec_Status_t exec_status;
@@ -191,6 +221,12 @@ int main(int argc, char **argv)
   size_t lb_counts;
   size_t hb_counts;
   NEPI_EDGE_ExecStatusGetCounts(exec_status, &lb_counts, &hb_counts);
+
+  if ((0 == lb_counts) && (1 == run_lb))
+  {
+    printf("\tLB connection attempt failed - No status to report\n");
+  }
+
   for (size_t i = 0; i < lb_counts; ++i)
   {
     printf("\tLB Connection Status %zu:\n", i);
@@ -234,6 +270,11 @@ int main(int argc, char **argv)
     printf("\t\tMessages Sent: %zu\n", msgs_sent);
     printf("\t\tPackets Sent: %zu\n", pkts_sent);
     printf("\t\tMessages Received: %zu\n", msgs_rcvd);
+  }
+
+  if ((0 == hb_counts) && (1 == run_hb))
+  {
+    printf("\tHB connection attempt failed - No status to report\n");
   }
 
   for (size_t i = 0; i < hb_counts; ++i)

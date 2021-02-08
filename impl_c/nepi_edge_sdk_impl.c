@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <signal.h>
 #include <unistd.h>
 
 #include "nepi_edge_sdk_impl.h"
@@ -24,6 +27,8 @@
 
 static char nepi_edge_bot_base_file_path[NEPI_EDGE_MAX_FILE_PATH_LENGTH] = {'\0'};
 static char nepi_edge_bot_nuid[NEPI_EDGE_NUID_STRLENGTH] = {'\0'};
+
+static pid_t bot_pid = -1;
 
 static void mkdir_recursive(const char *dir, mode_t mode)
 {
@@ -139,6 +144,104 @@ const char* NEPI_EDGE_GetBotBaseFilePath(void)
 const char* NEPI_EDGE_GetBotNUID(void)
 {
   return nepi_edge_bot_nuid;
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_StartBot(uint8_t run_lb, uint32_t lb_timeout_s, uint8_t run_hb, uint32_t hb_timeout_s)
+{
+  if (-1 != bot_pid)
+  {
+    return NEPI_EDGE_RET_BOT_ALREADY_RUNNING;
+  }
+
+  const pid_t fork_ret = fork();
+  if (-1 == fork_ret)
+  {
+    return NEPI_EDGE_RET_CANT_START_BOT;
+  }
+  else if (0 == fork_ret) // Child process
+  {
+    //sleep(30); // Just for attaching a debugger to this child process
+
+    // Avoid a race case on bot_pid by delaying here for a moment
+    usleep(50000); // 50ms
+
+    // Set up the args for execve -- includes command line args and environment
+    char executable_path[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
+    snprintf(executable_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/bin/botmain/botmain", nepi_edge_bot_base_file_path);
+    char *executable_argv[2];
+    executable_argv[0] = executable_path; // just argv[0] -- the application name, last one must be null-terminated
+    executable_argv[1] = NULL; // Indicates the end of the array
+    char run_lb_link_env_var[32];
+    snprintf(run_lb_link_env_var, 32, "RUN_LB_LINK=%u", run_lb);
+    char lb_proc_timeout_env_var[32];
+    snprintf(lb_proc_timeout_env_var, 32, "LB_PROC_TIMEOUT=%u", lb_timeout_s);
+    char run_hb_link_env_var[32];
+    snprintf(run_hb_link_env_var, 32, "RUN_HB_LINK=%u", run_hb);
+    char hb_proc_timeout_env_var[32];
+    snprintf(hb_proc_timeout_env_var, 32, "HB_PROC_TIMEOUT=%u", hb_timeout_s);
+    char *executable_env[5] = {run_lb_link_env_var, lb_proc_timeout_env_var, run_hb_link_env_var, hb_proc_timeout_env_var, NULL};
+
+    if (-1 == execve(executable_path, executable_argv, executable_env))
+    {
+      return NEPI_EDGE_RET_CANT_START_BOT; // Nobody will get this return value
+    }
+    // Otherwise, execve never returns
+  }
+
+  // else // Parent process
+  // Just set the bot_pid and return
+  bot_pid = fork_ret;
+  return NEPI_EDGE_RET_OK;
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_CheckBotRunning(uint8_t *bot_running)
+{
+  if (-1 == bot_pid) // not started
+  {
+    *bot_running = 0;
+  }
+  else
+  {
+    int status = 0;
+    int waitpid_ret = waitpid(bot_pid, &status, WNOHANG);
+    if (-1 == waitpid_ret)
+    {
+      return NEPI_EDGE_RET_BOT_EXEC_UNDETERMINED;
+    }
+    else if (0 == waitpid_ret)
+    {
+      *bot_running = 1;
+    }
+    else // Must have terminated
+    {
+      *bot_running = 0;
+    }
+    return NEPI_EDGE_RET_OK;
+  }
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_StopBot(uint8_t force_kill)
+{
+  if (-1 == bot_pid)
+  {
+    return NEPI_EDGE_RET_BOT_NOT_RUNNING;
+  }
+
+  int kill_ret;
+  if (0 == force_kill)
+  {
+    kill_ret = kill(bot_pid, SIGINT);
+  }
+  else
+  {
+    kill_ret = kill(bot_pid, SIGKILL);
+  }
+
+  if (0 != kill_ret)
+  {
+    return NEPI_EDGE_RET_CANT_KILL_BOT;
+  }
+  return NEPI_EDGE_RET_OK;
 }
 
 NEPI_EDGE_RET_t NEPI_EDGE_ExecStatusCreate(NEPI_EDGE_Exec_Status_t *exec_status)

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import os
+import time
+
 from nepi_edge_sdk import *
 
 # Helper for config and general message params
@@ -100,13 +102,37 @@ if __name__ == "__main__":
     sdk.linkHBDataFolder(test_directory)
     print("Linked HB Data Offload folder to " + test_directory)
 
-    # Here is how you actually launch the Bot and check the status afterwards
-    # TODO: Launch bot and wait for it to terminate
+    # Now launch the Bot process and wait for it to terminate
+    run_lb = True
+    lb_timeout_s = 30
+    run_hb = True
+    hb_timeout_s = 30
+    print('Starting BOT')
+    print('\tLB is ' + ('Enabled' if run_lb is True else 'Disabled') + ', LB Timeout is ' + str(lb_timeout_s) + ' seconds')
+    print('\tHB is ' + ('Enabled' if run_hb is True else 'Disabled') + ', HB Timeout is ' + str(hb_timeout_s) + ' seconds')
+    sdk.startBot(run_lb, lb_timeout_s, run_hb, hb_timeout_s)
+
+    bot_kill_timer = 0
+    while (sdk.checkBotRunning() is True):
+        bot_kill_timer += 1
+        print(str(bot_kill_timer))
+        time.sleep(1)
+
+        # Here is how to kill BOT before it terminates on its own
+        if (10 == bot_kill_timer):
+            print('Signalling BOT to shut down gracefully')
+            sdk.stopBot(0) # Soft kill
+        elif (15 == bot_kill_timer):
+            print('Killing BOT forecefully')
+            sdk.stopBot(1)
 
     # Now import the execution status to get information about how it went
     exec_status = NEPIEdgeExecStatus()
     (lb_statuses, hb_statuses) = exec_status.importStatus()
     print('Imported the BOT Execution Status')
+
+    if ((0 == len(lb_statuses)) and (run_lb is True)):
+        print('\tLB connection attempt failed - No status to report');
 
     for i,status in enumerate(lb_statuses):
         print('\tLB Connection Status ' + str(i) + ':')
@@ -123,6 +149,9 @@ if __name__ == "__main__":
         print('\t\tMessages Sent: ' + str(status['msgs_sent']))
         print('\t\tPackets Sent: ' + str(status['pkts_sent']))
         print('\t\tMessages Received: ' + str(status['msgs_rcvd']))
+
+    if ((0 == len(hb_statuses)) and (run_hb is True)):
+        print('\tHB connection attempt failed - No status to report');
 
     for i, status in enumerate(hb_statuses):
           print('\tHB Connection Status ' + str(i) + ':')

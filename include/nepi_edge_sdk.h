@@ -1,6 +1,8 @@
 #ifndef __NEPI_EDGE_SDK_H
 #define __NEPI_EDGE_SDK_H
 
+#include <stdint.h>
+
 #include "nepi_edge_errors.h"
 #include "nepi_edge_lb_consts.h"
 #include "nepi_edge_hb_consts.h"
@@ -14,6 +16,14 @@
 NEPI_EDGE_RET_t NEPI_EDGE_SetBotBaseFilePath(const char* path);
 const char* NEPI_EDGE_GetBotBaseFilePath(void);
 const char* NEPI_EDGE_GetBotNUID(void);
+
+/* **************** Exec Control API **************** */
+NEPI_EDGE_RET_t NEPI_EDGE_StartBot(uint8_t run_lb, uint32_t lb_timeout_s, uint8_t run_hb, uint32_t hb_timeout_s);
+// TODO?
+//NEPI_EDGE_RET_t NEPI_EDGE_StartBotScript(uint8_t run_lb, uint32_t lb_timeout_s, uint8_t run_hb, uint32_t hb_timeout_s)
+//NEPI_EDGE_RET_t NEPI_EDGE_StartBotContainer(uint8_t run_lb, uint32_t lb_timeout_s, uint8_t run_hb, uint32_t hb_timeout_s)
+NEPI_EDGE_RET_t NEPI_EDGE_CheckBotRunning(uint8_t *bot_running);
+NEPI_EDGE_RET_t NEPI_EDGE_StopBot(uint8_t force_kill);
 
 /* **************** Exec Status API **************** */
 typedef enum NEPI_EDGE_COMMS_STATUS

@@ -118,11 +118,12 @@ if __name__ == "__main__":
         print(str(bot_kill_timer))
         time.sleep(1)
 
-        # Here is how to kill BOT before it terminates on its own
-        if (10 == bot_kill_timer):
+        # Here is how to kill BOT before it terminates on its own -- this is an error-path fallback for a hung NEPI-BOT process, not a part
+        # of normal execution... BOT _should_ manage its own timeouts properly
+        if (hb_timeout_s + 1 == bot_kill_timer):
             print('Signalling BOT to shut down gracefully')
             sdk.stopBot(0) # Soft kill
-        elif (15 == bot_kill_timer):
+        elif (hb_timeout_s + 5 == bot_kill_timer):
             print('Killing BOT forecefully')
             sdk.stopBot(1)
 

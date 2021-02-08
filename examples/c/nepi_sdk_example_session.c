@@ -198,13 +198,14 @@ int main(int argc, char **argv)
     sleep(1);
     NEPI_EDGE_CheckBotRunning(&bot_still_running);
 
-    /* Here is how to kill BOT before it terminates on its own */
-    if (10 == bot_kill_timer)
+    /* Here is how to kill BOT before it terminates on its own -- this is an error-path fallback for a hung NEPI-BOT process, not a part
+       of normal execution... BOT _should_ manage its own timeouts properly */
+    if (hb_timeout_s + 1 == bot_kill_timer)
     {
       printf("Signaling BOT to shut down gracefully\n");
       NEPI_EDGE_StopBot(0); // Soft kill
     }
-    else if (15 == bot_kill_timer)
+    else if (hb_timeout_s + 5 == bot_kill_timer)
     {
       printf("Killing BOT forcefully\n");
       NEPI_EDGE_StopBot(1); // Hard kill

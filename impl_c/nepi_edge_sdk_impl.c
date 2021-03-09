@@ -172,6 +172,13 @@ NEPI_EDGE_RET_t NEPI_EDGE_StartBot(uint8_t run_lb, uint32_t lb_timeout_s, uint8_
     // Avoid a race case on bot_pid by delaying here for a moment
     usleep(50000); // 50ms
 
+    char executable_dir[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
+    snprintf(executable_dir, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/bin/botmain", nepi_edge_bot_base_file_path);
+    if (-1 == chdir(executable_dir))
+    {
+      return NEPI_EDGE_RET_INVALID_BOT_PATH;
+    }
+
     // Set up the args for execve -- includes command line args and environment
     char executable_path[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
     snprintf(executable_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/bin/botmain/botmain", nepi_edge_bot_base_file_path);

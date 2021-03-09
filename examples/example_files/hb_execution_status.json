@@ -20,7 +20,7 @@
       {
          "comms_type":"hb_ip",
          "status":"success",
-         "dtype":"dt",
+         "dtype":"sw",
          "timestart":"2021-01-20T01:31:12.467113",
          "timestop":"2021-01-20T01:31:42.325010",
          "datasent_kB":13701,

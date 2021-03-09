@@ -442,7 +442,7 @@ static void json_walk_exec_lb_status_callback(void *callback_data, const char *n
       destination_buf = conn_status->hdr.errors[conn_status->hdr.error_count];
       ++(conn_status->hdr.error_count);
     }
-    else // Either we're in an unknown array or the warning/error array is alradyat max capacity
+    else // Either we're in an unknown array or the warning/error array is already at max capacity
     {
       return;
     }
@@ -575,7 +575,9 @@ static void json_walk_exec_hb_status_callback(void *callback_data, const char *n
     detectNewHBConnectionEntry(&conn_status, NEPI_EDGE_HB_Connection_Status_Fields_Dtype);
 
     if (0 == memcmp("do", token->ptr, 2)) conn_status->direction = NEPI_EDGE_HB_DIRECTION_DO;
-    else if (0 == memcmp("dt", token->ptr, 2)) conn_status->direction = NEPI_EDGE_HB_DIRECTION_DT;
+    //else if (0 == memcmp("dt", token->ptr, 2)) conn_status->direction = NEPI_EDGE_HB_DIRECTION_DT;
+    // Currently only 'sw' entry is generated for DT
+    else if (0 == memcmp("sw", token->ptr, 2)) conn_status->direction = NEPI_EDGE_HB_DIRECTION_DT;
     else conn_status->direction = NEPI_EDGE_HB_DIRECTION_UNKNOWN;
 
     conn_status->hdr.fields_set |= NEPI_EDGE_HB_Connection_Status_Fields_Dtype;

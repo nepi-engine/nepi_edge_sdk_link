@@ -404,44 +404,63 @@ static NEPI_EDGE_RET_t export_status(const NEPI_EDGE_LB_Status_t status, const c
   FILE *status_file = fopen(tmp_filename, "w");
   if (NULL == status_file) return NEPI_EDGE_RET_FILE_OPEN_ERR;
 
-  // Write the JSON
+  // Write the JSON -- Units and resolution are as-described in NEPI Capabilities Document
+
+  // Timestamp - RFC3339 String
   fprintf(status_file, "{\n");
   fprintf(status_file, "\t\"timestamp\":\"%s\"", p->timestamp_rfc3339); // Timestamp is required and verified above
+
   // All other fields are optional
+
+  // Nav Sat Fix Time - Milliseconds difference from Timestamp (positive means later)
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_NavSatFixTime))
   {
-    const int64_t navsat_delta_ms = subtract_rfc3339_timestamps(p->navsat_fix_time_rfc3339, p->timestamp_rfc3339);
+    const int64_t navsat_delta_ms = subtract_rfc3339_timestamps(p->timestamp_rfc3339, p->navsat_fix_time_rfc3339);
     fprintf(status_file, ",\n\t\"navsat_fix_time_offset\":%ld", navsat_delta_ms);
   }
+
+  // Latitude - Floating point degrees
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_Latitude))
   {
     fprintf(status_file, ",\n\t\"latitude\":%f", p->latitude_deg);
   }
+
+  // Longitude - Floating point degrees
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_Longitude))
   {
     fprintf(status_file, ",\n\t\"longitude\":%f", p->longitude_deg);
   }
+
+  // Heading - Millidegrees, Heading Ref - True North = 1, Mag. North = 0
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_HeadingAndRef))
   {
     //fprintf(status_file, ",\n\t\"heading\":%f", p->heading_deg);
     fprintf(status_file, ",\n\t\"heading\":%d", (int)(round(1000.0 * p->heading_deg)));
-    fprintf(status_file, ",\n\t\"heading_true_north\":%s", (p->heading_ref == NEPI_EDGE_HEADING_REF_TRUE_NORTH)? "true" : "false");
+    fprintf(status_file, ",\n\t\"heading_ref\":%d", (p->heading_ref == NEPI_EDGE_HEADING_REF_TRUE_NORTH)? 1 : 0);
   }
+
+  // Roll Angle - Millidegrees
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_RollAngle))
   {
     //fprintf(status_file, ",\n\t\"roll_angle\":%f", p->roll_angle_deg);
     fprintf(status_file, ",\n\t\"roll_angle\":%d", (int)(round(1000.0 * p->roll_angle_deg)));
   }
+
+  // Pitch Angle - Millidegrees
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_PitchAngle))
   {
     //fprintf(status_file, ",\n\t\"pitch_angle\":%f", p->pitch_angle_deg);
     fprintf(status_file, ",\n\t\"pitch_angle\":%d", (int)(round(1000.0 * p->pitch_angle_deg)));
   }
+
+  // Temperature - Decidegrees Celsius
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_Temperature))
   {
     //fprintf(status_file, ",\n\t\"temperature\":%f", p->temperature_c);
     fprintf(status_file, ",\n\t\"temperature\":%d", (int)(round(10 * p->temperature_c)));
   }
+
+  // Power State - [0, 100](%)
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Status_Fields_PowerState))
   {
     fprintf(status_file, ",\n\t\"power_state\":%u", p->power_state_percentage);
@@ -531,14 +550,14 @@ static NEPI_EDGE_RET_t export_data_snippet(NEPI_EDGE_LB_Data_Snippet_t snippet, 
   FILE *snippet_file = fopen(tmp_filename, "w");
   if (NULL == snippet_file) return NEPI_EDGE_RET_FILE_OPEN_ERR;
 
-  // Now write the JSON
+  // Now write the JSON -- Units and resolution are as-described in NEPI Capabilities Document
   fprintf(snippet_file, "{\n");
   fprintf(snippet_file, "\t\"type\":\"%c%c%c\"", p->type[0], p->type[1], p->type[2]);
   fprintf(snippet_file, ",\n\t\"instance\":%u", p->instance);
 
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Data_Snippet_Fields_Data_Time))
   {
-    int64_t data_time_delta_ms = subtract_rfc3339_timestamps(p->data_time_rfc3339, status->timestamp_rfc3339);
+    int64_t data_time_delta_ms = subtract_rfc3339_timestamps(status->timestamp_rfc3339, p->data_time_rfc3339);
     fprintf(snippet_file, ",\n\t\"data_time_offset\":%ld", data_time_delta_ms);
   }
   if (CHECK_FIELD_PRESENT(p, NEPI_EDGE_LB_Data_Snippet_Fields_Latitude))

@@ -180,10 +180,8 @@ NEPI_EDGE_RET_t NEPI_EDGE_StartBot(uint8_t run_lb, uint32_t lb_timeout_s, uint8_
     }
 
     // Set up the args for execve -- includes command line args and environment
-    char executable_path[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
-    snprintf(executable_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/bin/botmain/botmain", nepi_edge_bot_base_file_path);
     char *executable_argv[2];
-    executable_argv[0] = executable_path; // just argv[0] -- the application name, last one must be null-terminated
+    executable_argv[0] = "botmain"; // just argv[0] -- the application name, last one must be null-terminated
     executable_argv[1] = NULL; // Indicates the end of the array
     char run_lb_link_env_var[32];
     snprintf(run_lb_link_env_var, 32, "RUN_LB_LINK=%u", run_lb);
@@ -195,7 +193,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_StartBot(uint8_t run_lb, uint32_t lb_timeout_s, uint8_
     snprintf(hb_proc_timeout_env_var, 32, "HB_PROC_TIMEOUT=%u", hb_timeout_s);
     char *executable_env[5] = {run_lb_link_env_var, lb_proc_timeout_env_var, run_hb_link_env_var, hb_proc_timeout_env_var, NULL};
 
-    if (-1 == execve(executable_path, executable_argv, executable_env))
+    if (-1 == execve("botmain", executable_argv, executable_env))
     {
       return NEPI_EDGE_RET_CANT_START_BOT; // Nobody will get this return value
     }

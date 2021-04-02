@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
     # Now import the execution status to get information about how it went
     exec_status = NEPIEdgeExecStatus()
-    (lb_statuses, hb_statuses) = exec_status.importStatus()
+    (lb_statuses, hb_statuses, software_was_updated) = exec_status.importStatus()
     print('Imported the BOT Execution Status')
 
     if ((0 == len(lb_statuses)) and (run_lb is True)):
@@ -173,3 +173,8 @@ if __name__ == "__main__":
           print('\t\tDirection: ' + str(status['direction']))
           print('\t\tData Sent: ' + str(status['datasent_kB']) + 'kB')
           print('\t\tData Received: ' + str(status['datareceived_kB']) + 'kB')
+
+    if software_was_updated:
+        print('\tSoftware Was Updated!')
+    else:
+        print('\tSoftware Not Updated')

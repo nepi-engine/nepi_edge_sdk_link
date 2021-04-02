@@ -12,6 +12,7 @@
 
 #define NEPI_EDGE_LB_EXEC_STAT_FILE_PATH      "log/lb_execution_status.json"
 #define NEPI_EDGE_HB_EXEC_STAT_FILE_PATH      "log/hb_execution_status.json"
+#define NEPI_EDGE_SW_UPDATE_STAT_FILE_PATH    "log/sw_update_status.yaml"
 
 NEPI_EDGE_RET_t NEPI_EDGE_SetBotBaseFilePath(const char* path);
 const char* NEPI_EDGE_GetBotBaseFilePath(void);
@@ -48,6 +49,7 @@ NEPI_EDGE_RET_t NEPI_EDGE_ExecStatusDestroy(NEPI_EDGE_Exec_Status_t exec_status)
 
 NEPI_EDGE_RET_t NEPI_EDGE_ImportExecStatus(NEPI_EDGE_Exec_Status_t exec_status);
 NEPI_EDGE_RET_t NEPI_EDGE_ExecStatusGetCounts(NEPI_EDGE_Exec_Status_t exec_status, size_t *lb_counts, size_t *hb_counts);
+NEPI_EDGE_RET_t NEPI_EDGE_SoftwareWasUpdated(NEPI_EDGE_Exec_Status_t exec_status, uint8_t *software_was_updated);
 
 NEPI_EDGE_RET_t NEPI_EDGE_ExecStatusGetLBCommsType(NEPI_EDGE_Exec_Status_t exec_status, size_t lb_index, char **comms_type);
 NEPI_EDGE_RET_t NEPI_EDGE_ExecStatusGetLBCommsStatus(NEPI_EDGE_Exec_Status_t exec_status, size_t lb_index, NEPI_EDGE_COMMS_STATUS_t *comms_status);

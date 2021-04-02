@@ -107,6 +107,8 @@ struct NEPI_EDGE_Exec_Status
 
   struct NEPI_EDGE_HB_Connection_Status *hb_conn_status; // Linked list
 
+  uint8_t software_updated;
+
   NEPI_EDGE_Opaque_Helper_t opaque_helper;
 };
 

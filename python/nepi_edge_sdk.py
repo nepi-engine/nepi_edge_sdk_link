@@ -437,6 +437,7 @@ class NEPIEdgeExecStatus(NEPIEdgeBase):
 
         self.c_lib.NEPI_EDGE_ImportExecStatus.argtypes = [ctypes.c_void_p]
         self.c_lib.NEPI_EDGE_ExecStatusGetCounts.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(ctypes.c_size_t)]
+        self.c_lib.NEPI_EDGE_SoftwareWasUpdated.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint8)]
 
         self.c_lib.NEPI_EDGE_ExecStatusGetLBCommsType.argtypes = [ctypes.c_void_p, ctypes.c_size_t, ctypes.POINTER(ctypes.c_char_p)]
         self.c_lib.NEPI_EDGE_ExecStatusGetLBCommsStatus.argtypes = [ctypes.c_void_p, ctypes.c_size_t, ctypes.POINTER(ctypes.c_int)]
@@ -565,4 +566,8 @@ class NEPIEdgeExecStatus(NEPIEdgeBase):
 
             hb_statuses.append(status_dict)
 
-        return lb_statuses, hb_statuses
+        software_was_updated = ctypes.c_uint8()
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_SoftwareWasUpdated(self.c_ptr_self, ctypes.byref(software_was_updated)))
+        software_updated = True if (software_was_updated.value == 1) else False
+
+        return lb_statuses, hb_statuses, software_updated

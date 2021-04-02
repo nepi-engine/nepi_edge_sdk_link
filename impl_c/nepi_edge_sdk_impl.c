@@ -681,6 +681,20 @@ NEPI_EDGE_RET_t NEPI_EDGE_ImportExecStatus(NEPI_EDGE_Exec_Status_t exec_status)
     free(json_string); // Must free the frozen-malloc'd string
   }
 
+  // Check if the sw update status file exists to inform caller if software has been updated... existence
+  // of this file is the indicator
+  char sw_status_filename_with_path[NEPI_EDGE_MAX_FILE_PATH_LENGTH];
+  snprintf(sw_status_filename_with_path, NEPI_EDGE_MAX_FILE_PATH_LENGTH, "%s/%s",
+           NEPI_EDGE_GetBotBaseFilePath(), NEPI_EDGE_SW_UPDATE_STAT_FILE_PATH);
+  if (access(sw_status_filename_with_path, F_OK) == 0)
+  {
+    p->software_updated = 1;
+  }
+  else
+  {
+    p->software_updated = 0;
+  }
+
   return NEPI_EDGE_RET_OK;
 }
 
@@ -703,6 +717,15 @@ NEPI_EDGE_RET_t NEPI_EDGE_ExecStatusGetCounts(NEPI_EDGE_Exec_Status_t exec_statu
     ++(*hb_counts);
     hb_conn_status = hb_conn_status->next;
   }
+
+  return NEPI_EDGE_RET_OK;
+}
+
+NEPI_EDGE_RET_t NEPI_EDGE_SoftwareWasUpdated(NEPI_EDGE_Exec_Status_t exec_status, uint8_t *software_was_updated)
+{
+  VALIDATE_OPAQUE_TYPE(exec_status, NEPI_EDGE_OPAQUE_TYPE_ID_EXEC_STATUS, NEPI_EDGE_Exec_Status)
+
+  *software_was_updated = p->software_updated;
 
   return NEPI_EDGE_RET_OK;
 }

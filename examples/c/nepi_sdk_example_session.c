@@ -329,6 +329,17 @@ int main(int argc, char **argv)
     printf("\t\tData Received: %zukB\n", datareceived_kB);
   }
 
+  uint8_t software_was_updated;
+  NEPI_EDGE_SoftwareWasUpdated(exec_status, &software_was_updated);
+  if (1 == software_was_updated)
+  {
+    printf("\n\tSoftware Was Updated!\n");
+  }
+  else
+  {
+    printf("\n\tSoftware Not Updated\n");
+  }
+
   /* Always destroy what you create */
   NEPI_EDGE_LBStatusDestroy(status);
   NEPI_EDGE_LBDataSnippetDestroy(data_snippets[0]);

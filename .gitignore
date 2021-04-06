@@ -1,3 +1,5 @@
 build
 Debug
 Release
+rsync_src_package_to_target.sh
+sdk_version.txt

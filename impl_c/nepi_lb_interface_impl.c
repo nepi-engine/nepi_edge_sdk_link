@@ -501,6 +501,8 @@ static int copy_file(const char *src_filename, const char *destination_filename)
 
   fclose(src);
   fclose(dest);
+
+  return 0;
 }
 
 static NEPI_EDGE_RET_t export_data_snippet(NEPI_EDGE_LB_Data_Snippet_t snippet, const char* data_path, const struct NEPI_EDGE_LB_Status* status)

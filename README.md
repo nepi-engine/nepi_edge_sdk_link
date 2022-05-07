@@ -20,7 +20,7 @@ The CMake file checks for existence of a INSTALL_DESTINATION variable that Speci
 the absolute path to an install directory. If that variable is omitted, the _install_
 is to a local folder that matches the CMAKE_BUILD_TYPE value (default = _Debug_). For example,
 
-      cmake -DCMAKE_BUILD_TYPE=Release -DINSTALL_DESTINATION=/my/favorite/folder
+      cmake -DCMAKE_BUILD_TYPE=Release -DINSTALL_DESTINATION=/my/favorite/folder ..
       make install
 
 will build and install an optimized package to _/my/favorite/folder_

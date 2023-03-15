@@ -1,6 +1,6 @@
-# nepi-edge-sdk
+# nepi_edge_sdk_link
 
-Description: SDK for Numurus NEPI Edge Devices
+Description: SDK for NEPI-Connect/NEPI-Link for Edge Devices
 
 Provides both a C-language library and Python module (2.7-compatible, 3.x-preferred).
 Example files show usage.
@@ -46,7 +46,7 @@ install. This can be specified as a flag to the linker or provided through the
 _LD_LIBRARY_PATH_ environment variable. Alternatively, the dynamic library can be
 simply copied into the run folder of your application.
 
-To use the Python bindings, your Python interpreter must be able to find _nepi_edge_sdk.py_.
+To use the Python bindings, your Python interpreter must be able to find _nepi_edge_sdk_link.py_.
 You can update your PYTHONPATH environment variable or simply copy this file into the
 same folder as your main Python application. Additionally, your loader must be able to
 find the C dynamic library as described above.

@@ -5,7 +5,7 @@
 #include <stddef.h>
 
 #include "nepi_edge_lb_consts.h"
-#include "nepi_edge_sdk.h"
+#include "nepi_edge_sdk_link.h"
 
 typedef enum NEPI_EDGE_LB_MSG_ID
 {

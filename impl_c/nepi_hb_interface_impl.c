@@ -2,8 +2,8 @@
 #include <errno.h>
 #include <stdio.h>
 
-#include "nepi_edge_sdk.h"
-#include "nepi_edge_sdk_impl.h"
+#include "nepi_edge_sdk_link.h"
+#include "nepi_edge_sdk_link_impl.h"
 #include "nepi_edge_hb_interface.h"
 
 static char targ_data_path[NEPI_EDGE_MAX_FILE_PATH_LENGTH] = {'\0'};

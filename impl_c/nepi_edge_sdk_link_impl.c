@@ -6,7 +6,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include "nepi_edge_sdk_impl.h"
+#include "nepi_edge_sdk_link_impl.h"
 
 #include "frozen/frozen.h"
 

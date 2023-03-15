@@ -1,7 +1,7 @@
 import ctypes
 import os
 
-NEPI_EDGE_SDK_LIB_NAME = "libnepi_edge_sdk_shared.so"
+NEPI_EDGE_SDK_LIB_NAME = "libnepi_edge_sdk_link_shared.so"
 
 # Copied in from nepi_edge_errors.h
 NEPI_EDGE_RET_OK = 0
@@ -264,8 +264,8 @@ class NEPIEdgeLBConfig(NEPIEdgeBase):
         self.exceptionIfError(self.c_lib.NEPI_EDGE_LBImportConfig(self.c_ptr_self, filename.encode('utf-8')))
 
     @staticmethod
-    def importAll(nepi_edge_sdk):
-        cfg_path = nepi_edge_sdk.getBotBaseFilePath() + "/lb/cfg"
+    def importAll(nepi_edge_sdk_link):
+        cfg_path = nepi_edge_sdk_link.getBotBaseFilePath() + "/lb/cfg"
 
         cfg_instances = list()
         for filename in os.listdir(cfg_path):
@@ -388,8 +388,8 @@ class NEPIEdgeLBGeneral(NEPIEdgeBase):
         self.exceptionIfError(self.c_lib.NEPI_EDGE_LBImportGeneral(self.c_ptr_self, filename.encode('utf-8')))
 
     @staticmethod
-    def importAll(nepi_edge_sdk):
-        general_path = nepi_edge_sdk.getBotBaseFilePath() + "/lb/dt-msg"
+    def importAll(nepi_edge_sdk_link):
+        general_path = nepi_edge_sdk_link.getBotBaseFilePath() + "/lb/dt-msg"
 
         general_instances = list()
         for filename in os.listdir(general_path):

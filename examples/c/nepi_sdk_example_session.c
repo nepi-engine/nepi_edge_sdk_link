@@ -3,7 +3,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "nepi_edge_sdk.h"
+#include "nepi_edge_sdk_link.h"
 #include "nepi_edge_lb_interface.h"
 #include "nepi_edge_hb_interface.h"
 

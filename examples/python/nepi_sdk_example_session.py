@@ -3,7 +3,7 @@
 import os
 import time
 
-from nepi_edge_sdk import *
+from nepi_edge_sdk_link import *
 
 # Helper for config and general message params
 def printParam(param_id, param_val):

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.8)
-project(nepi_edge_sdk)
+project(nepi_edge_sdk_link)
 
 if(CMAKE_BUILD_TYPE STREQUAL "")
   message(WARNING "No CMAKE_BUILD_TYPE specified... setting to \"Debug\"")
@@ -13,7 +13,7 @@ message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 
 ## Specify source files
 set(libc_src
-  impl_c/nepi_edge_sdk_impl.c
+  impl_c/nepi_edge_sdk_link_impl.c
   impl_c/nepi_lb_interface_impl.c
   impl_c/nepi_hb_interface_impl.c
   impl_c/frozen/frozen.c
@@ -72,7 +72,7 @@ install(PROGRAMS examples/python/nepi_sdk_example_session.py
 )
 
 ## Add the Python bindings to the lib subfolder
-install(FILES python/nepi_edge_sdk.py
+install(FILES python/nepi_edge_sdk_link.py
   DESTINATION ${INSTALL_DESTINATION}/lib
 )
 
@@ -87,7 +87,7 @@ install(DIRECTORY examples/nepi_sdk_example_filesys examples/example_files
 
 # Create the setup.bash to set env. variables properly
 install(CODE
-        "file(WRITE ${INSTALL_DESTINATION}/setup.bash \"# Environment setup file for nepi-edge-sdk\n\")"
+        "file(WRITE ${INSTALL_DESTINATION}/setup.bash \"# Environment setup file for nepi_edge_sdk_link_link\n\")"
 )
 install(CODE
         "file(APPEND ${INSTALL_DESTINATION}/setup.bash \"export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${INSTALL_DESTINATION}/lib\n\")"

@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "nepi_edge_sdk.h"
+#include "nepi_edge_sdk_link.h"
 
 // In case we want to provide arena allocator, etc. someday, don't call
 // malloc() and free() directly

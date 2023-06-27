@@ -6,8 +6,8 @@
 
 #include "nepi_edge_lb_interface.h"
 #include "nepi_lb_interface_impl.h"
-#include "nepi_edge_sdk.h"
-#include "nepi_edge_sdk_impl.h"
+#include "nepi_edge_sdk_link.h"
+#include "nepi_edge_sdk_link_impl.h"
 #include "nepi_edge_errors.h"
 
 #include "frozen/frozen.h"

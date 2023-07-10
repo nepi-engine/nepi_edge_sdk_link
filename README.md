@@ -25,6 +25,8 @@ is to a local folder that matches the CMAKE_BUILD_TYPE value (default = _Debug_)
 
 will build and install an optimized package to _/my/favorite/folder_
 
+*Suggest using install location /opt/nepi/nepi_edge_sdk_link for easiest interoperability with other NEPI components.
+
 ## Using the library
 Examples are provided in the _bin_ folder of the installation.
 

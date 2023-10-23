@@ -205,8 +205,7 @@ class NEPIEdgeLBDataSnippet(NEPIEdgeBase):
 
         self.initFunctionPrototypes()
 
-        type_array = (ctypes.c_char * 3)(*type)
-        self.exceptionIfError(self.c_lib.NEPI_EDGE_LBDataSnippetCreate(ctypes.byref(self.c_ptr_self), type, instance))
+        self.exceptionIfError(self.c_lib.NEPI_EDGE_LBDataSnippetCreate(ctypes.byref(self.c_ptr_self), type.encode('utf-8'), instance))
 
     def __del__(self):
         self.exceptionIfError(self.c_lib.NEPI_EDGE_LBDataSnippetDestroy(self.c_ptr_self))
@@ -481,7 +480,7 @@ class NEPIEdgeExecStatus(NEPIEdgeBase):
 
             comms_type = ctypes.c_char_p()
             self.exceptionIfError(self.c_lib.NEPI_EDGE_ExecStatusGetLBCommsType(self.c_ptr_self, i, ctypes.byref(comms_type)))
-            status_dict['comms_type'] = comms_type.value
+            status_dict['comms_type'] = comms_type.value.decode()
 
             comms_status = ctypes.c_int()
             self.exceptionIfError(self.c_lib.NEPI_EDGE_ExecStatusGetLBCommsStatus(self.c_ptr_self, i, ctypes.byref(comms_status)))
@@ -490,8 +489,8 @@ class NEPIEdgeExecStatus(NEPIEdgeBase):
             start_time_rfc3339 = ctypes.c_char_p()
             stop_time_rfc3339 = ctypes.c_char_p()
             self.exceptionIfError(self.c_lib.NEPI_EDGE_ExecStatusGetLBCommsTimestamps(self.c_ptr_self, i, ctypes.byref(start_time_rfc3339), ctypes.byref(stop_time_rfc3339)))
-            status_dict['start_time_rfc3339'] = start_time_rfc3339.value
-            status_dict['stop_time_rfc3339'] = stop_time_rfc3339.value
+            status_dict['start_time_rfc3339'] = start_time_rfc3339.value.decode()
+            status_dict['stop_time_rfc3339'] = stop_time_rfc3339.value.decode()
 
             warning_count = ctypes.c_size_t()
             error_count = ctypes.c_size_t()
@@ -501,14 +500,14 @@ class NEPIEdgeExecStatus(NEPIEdgeBase):
             for j in range(warning_count.value):
                 warning_msg = ctypes.c_char_p()
                 self.exceptionIfError(self.c_lib.NEPI_EDGE_ExecStatusGetLBCommsGetWarning(self.c_ptr_self, i, j, ctypes.byref(warning_msg)))
-                warnings.append(warning_msg.value)
+                warnings.append(warning_msg.value.decode())
             status_dict['warnings'] = warnings
 
             errors = list()
             for j in range(error_count.value):
                 error_msg = ctypes.c_char_p()
                 self.exceptionIfError(self.c_lib.NEPI_EDGE_ExecStatusGetLBCommsGetError(self.c_ptr_self, i, j, ctypes.byref(error_msg)))
-                errors.append(error_msg.value)
+                errors.append(error_msg.value.decode())
             status_dict['errors'] = errors
 
             msgs_sent = ctypes.c_size_t()
@@ -526,7 +525,7 @@ class NEPIEdgeExecStatus(NEPIEdgeBase):
 
             comms_type = ctypes.c_char_p()
             self.exceptionIfError(self.c_lib.NEPI_EDGE_ExecStatusGetHBCommsType(self.c_ptr_self, i, ctypes.byref(comms_type)))
-            status_dict['comms_type'] = comms_type.value
+            status_dict['comms_type'] = comms_type.value.decode()
 
             comms_status = ctypes.c_int()
             self.exceptionIfError(self.c_lib.NEPI_EDGE_ExecStatusGetHBCommsStatus(self.c_ptr_self, i, ctypes.byref(comms_status)))
@@ -535,8 +534,8 @@ class NEPIEdgeExecStatus(NEPIEdgeBase):
             start_time_rfc3339 = ctypes.c_char_p()
             stop_time_rfc3339 = ctypes.c_char_p()
             self.exceptionIfError(self.c_lib.NEPI_EDGE_ExecStatusGetHBCommsTimestamps(self.c_ptr_self, i, ctypes.byref(start_time_rfc3339), ctypes.byref(stop_time_rfc3339)))
-            status_dict['start_time_rfc3339'] = start_time_rfc3339.value
-            status_dict['stop_time_rfc3339'] = stop_time_rfc3339.value
+            status_dict['start_time_rfc3339'] = start_time_rfc3339.value.decode()
+            status_dict['stop_time_rfc3339'] = stop_time_rfc3339.value.decode()
 
             warning_count = ctypes.c_size_t()
             error_count = ctypes.c_size_t()
@@ -545,13 +544,13 @@ class NEPIEdgeExecStatus(NEPIEdgeBase):
             for j in range(warning_count.value):
                 warning_msg = ctypes.c_char_p()
                 self.exceptionIfError(self.c_lib.NEPI_EDGE_ExecStatusGetHBCommsGetWarning(self.c_ptr_self, i, j, ctypes.byref(warning_msg)))
-                warnings.append(warning_msg.value)
+                warnings.append(warning_msg.value.decode())
             status_dict['warnings'] = warnings
             errors = list()
             for j in range(error_count.value):
                 error_msg = ctypes.c_char_p()
                 self.exceptionIfError(self.c_lib.NEPI_EDGE_ExecStatusGetHBCommsGetError(self.c_ptr_self, i, j, ctypes.byref(error_msg)))
-                errors.append(error_msg.value)
+                errors.append(error_msg.value.decode())
             status_dict['errors'] = errors
 
             direction = ctypes.c_int()

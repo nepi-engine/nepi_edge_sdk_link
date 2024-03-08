@@ -16,6 +16,8 @@ Provides both a C-language library and Python module (2.7-compatible, 3.x-prefer
 Example files within this repository demonstrate usage.
 
 ## Building
+> Note: The unified build script in parent repository _nepi_engine_ws_ will execute the following commands properly as part of its one-step full nepi-engine build, so the following instructions are only applicable if building this repository manually.
+
 This is a CMake project, so standard CMake build patterns apply
 
       mkdir build && cd build
